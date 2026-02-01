@@ -85,6 +85,22 @@ Deno.serve(async (req) => {
             .replace(/&quot;/g, '"')
             .replace(/\s+/g, ' ')
             .trim();
+          
+          // Remove common greeting/intro patterns
+          content = content
+            .replace(/^(Goodmorning|Good morning|Hello|Hi|Hey|everyone)!?\s*/gi, '')
+            .replace(/I wish you a great start of the day\.?\s*/gi, '')
+            .replace(/I booked my ticket[^.!]*[.!]\s*/gi, '')
+            .replace(/Welcome back!?\s*/gi, '')
+            .replace(/Thanks for reading[^!]*!?\s*/gi, '')
+            .replace(/Subscribe for free[^.]*\.?\s*/gi, '')
+            .replace(/Inspiration from across the world[^.]*\.?\s*/gi, '')
+            .replace(/Here is your weekly newsletter[^.!]*[.!]\s*/gi, '')
+            .replace(/All topics I like personally\.?\s*/gi, '')
+            .replace(/I hope you enjoy reading[^.!]*[.!]\s*/gi, '')
+            .replace(/Thank you!?\s*/gi, '')
+            .replace(/so in March I will show you how it's there!?\s*/gi, '')
+            .trim();
         }
 
         // Extract H4 headings as topics (strip emojis at start)

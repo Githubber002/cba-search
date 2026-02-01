@@ -87,18 +87,23 @@ Deno.serve(async (req) => {
             .trim();
         }
 
-        // Extract H4 headings as topics (strip emojis and special chars)
+        // Extract H4 headings as topics (strip emojis at start)
         const h4Matches = articleHtml.matchAll(/<h4[^>]*>([^<]+)<\/h4>/gi);
-        const emojiRegex = /[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2300}-\u{23FF}]|[\u{2B50}]|[\u{203C}-\u{3299}]|[\u{FE00}-\u{FE0F}]/gu;
         const topics = [...h4Matches]
           .map(m => m[1].trim())
           .filter(t => t.length > 3 && t.length < 200)
-          .map(t => t
-            .replace(/&amp;/g, '&')
-            .replace(/&nbsp;/g, ' ')
-            .replace(emojiRegex, '')
-            .trim()
-          )
+          .map(t => {
+            let cleaned = t
+              .replace(/&amp;/g, '&')
+              .replace(/&nbsp;/g, ' ')
+              .replace(/&#\d+;/g, '') // Remove HTML numeric entities
+              // Remove unicode escape patterns like \uD83C or uD83C
+              .replace(/\\?u[0-9A-Fa-f]{4}/g, '')
+              // Remove any leading non-ASCII or non-letter chars  
+              .replace(/^[^a-zA-Z0-9]+/, '')
+              .trim();
+            return cleaned;
+          })
           .filter(t => t.length > 3 && !t.toLowerCase().includes('discussion about'));
 
         // Fallback: extract from meta description

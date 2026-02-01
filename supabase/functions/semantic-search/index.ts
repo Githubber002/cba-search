@@ -45,14 +45,61 @@ Deno.serve(async (req) => {
       );
     }
 
-    // If we have the AI API key, use semantic search
+    const queryLower = query.toLowerCase();
+
+    // FIRST: Find all articles with direct keyword matches (these should always be included)
+    const directMatches = articles.filter(article => {
+      const searchText = `${article.title} ${article.subtitle || ''} ${article.content} ${(article.topics || []).join(' ')}`.toLowerCase();
+      return searchText.includes(queryLower);
+    });
+
+    console.log(`Found ${directMatches.length} direct keyword matches for "${query}"`);
+
+    // If we have direct matches, prioritize them
+    if (directMatches.length > 0) {
+      // Score direct matches based on frequency and position
+      const scoredMatches = directMatches.map(article => {
+        const searchText = `${article.title} ${article.subtitle || ''} ${article.content} ${(article.topics || []).join(' ')}`.toLowerCase();
+        const titleText = article.title.toLowerCase();
+        const topicsText = (article.topics || []).join(' ').toLowerCase();
+        
+        let score = 0.5; // Base score for having a match
+        
+        // Count occurrences
+        const occurrences = (searchText.match(new RegExp(queryLower, 'g')) || []).length;
+        score += Math.min(occurrences * 0.1, 0.3);
+        
+        // Title match bonus
+        if (titleText.includes(queryLower)) {
+          score += 0.3;
+        }
+        
+        // Topics match bonus
+        if (topicsText.includes(queryLower)) {
+          score += 0.2;
+        }
+        
+        return { ...article, relevance: Math.min(score, 1) };
+      }).sort((a, b) => b.relevance - a.relevance);
+
+      // If we have enough direct matches, return them
+      if (scoredMatches.length >= 3) {
+        return new Response(
+          JSON.stringify({ success: true, results: scoredMatches.slice(0, 10) }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
+    // If we have the AI API key and need more results, use semantic search
     if (lovableApiKey) {
       console.log('Using AI for semantic ranking...');
       
-      // Create article summaries for AI ranking
-      const articleSummaries = articles.map((a, i) => 
-        `[${i}] "${a.title}"${a.subtitle ? ` - ${a.subtitle}` : ''}: ${a.content.slice(0, 200)}...`
-      ).join('\n\n');
+      // Create article summaries for AI ranking - include topics and more content
+      const articleSummaries = articles.map((a, i) => {
+        const topics = a.topics && a.topics.length > 0 ? `Topics: ${a.topics.join(', ')}` : '';
+        return `[${i}] "${a.title}"${a.subtitle ? ` - ${a.subtitle}` : ''}\n${topics}\nContent: ${a.content.slice(0, 400)}...`;
+      }).join('\n\n');
 
       const aiResponse = await fetch(LOVABLE_AI_URL, {
         method: 'POST',
@@ -65,12 +112,17 @@ Deno.serve(async (req) => {
           messages: [
             {
               role: 'system',
-              content: `You are a search ranking assistant. Given a search query and a list of articles, return the indices of the most relevant articles in order of relevance. Consider synonyms, related concepts, and semantic meaning - not just exact keyword matches.
+              content: `You are a search ranking assistant. Given a search query and a list of articles, return the indices of the most relevant articles in order of relevance. 
 
-For example, if someone searches for "global expansion" also consider articles about "international growth", "entering new markets", "cross-border commerce", etc.
+IMPORTANT: 
+- If the search query contains a specific term or name, prioritize articles that mention that exact term
+- Also consider synonyms, related concepts, and semantic meaning
+- Look at both the topics list AND the content for matches
 
-Return ONLY a JSON array of objects with "index" (the article number) and "score" (relevance from 0-1). Return the top 10 most relevant articles. Example response format:
-[{"index": 3, "score": 0.95}, {"index": 7, "score": 0.82}]`
+Return ONLY a JSON array of objects with "index" (the article number) and "score" (relevance from 0-1). Return up to 10 most relevant articles. Example response format:
+[{"index": 3, "score": 0.95}, {"index": 7, "score": 0.82}]
+
+If no articles are relevant, return an empty array: []`
             },
             {
               role: 'user',
@@ -86,21 +138,35 @@ Return ONLY a JSON array of objects with "index" (the article number) and "score
         const aiData = await aiResponse.json();
         const aiContent = aiData.choices?.[0]?.message?.content || '';
         
-        // Parse the AI response
         try {
-          // Extract JSON from the response
           const jsonMatch = aiContent.match(/\[[\s\S]*\]/);
           if (jsonMatch) {
             const rankings = JSON.parse(jsonMatch[0]);
             
-            const rankedResults = rankings
+            let rankedResults = rankings
               .filter((r: any) => r.index >= 0 && r.index < articles.length)
               .map((r: any) => ({
                 ...articles[r.index],
                 relevance: r.score
               }));
 
-            console.log(`AI ranked ${rankedResults.length} results`);
+            // Merge with direct matches (direct matches get priority)
+            if (directMatches.length > 0) {
+              const directMatchIds = new Set(directMatches.map(a => a.id));
+              const aiOnlyResults = rankedResults.filter((r: any) => !directMatchIds.has(r.id));
+              
+              const scoredDirectMatches = directMatches.map(article => {
+                const existingRank = rankedResults.find((r: any) => r.id === article.id);
+                return { 
+                  ...article, 
+                  relevance: existingRank ? Math.max(existingRank.relevance, 0.9) : 0.9 
+                };
+              });
+              
+              rankedResults = [...scoredDirectMatches, ...aiOnlyResults].slice(0, 10);
+            }
+
+            console.log(`Returning ${rankedResults.length} results (${directMatches.length} direct matches)`);
             
             return new Response(
               JSON.stringify({ success: true, results: rankedResults }),
@@ -117,26 +183,27 @@ Return ONLY a JSON array of objects with "index" (the article number) and "score
 
     // Fallback to basic text search
     console.log('Using fallback text search...');
-    const queryLower = query.toLowerCase();
     const queryWords = queryLower.split(/\s+/).filter((w: string) => w.length > 2);
     
     const scoredArticles = articles.map(article => {
-      const searchText = `${article.title} ${article.subtitle || ''} ${article.content}`.toLowerCase();
+      const searchText = `${article.title} ${article.subtitle || ''} ${article.content} ${(article.topics || []).join(' ')}`.toLowerCase();
       let score = 0;
       
-      // Exact phrase match
+      // Exact phrase match (high priority)
       if (searchText.includes(queryLower)) {
-        score += 0.5;
+        score += 0.6;
       }
       
       // Individual word matches
       for (const word of queryWords) {
         if (searchText.includes(word)) {
-          score += 0.1;
+          score += 0.15;
         }
-        // Title match is more important
         if (article.title.toLowerCase().includes(word)) {
           score += 0.2;
+        }
+        if ((article.topics || []).join(' ').toLowerCase().includes(word)) {
+          score += 0.15;
         }
       }
       

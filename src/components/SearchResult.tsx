@@ -9,6 +9,7 @@ interface SearchResultProps {
   publishedDate?: string;
   relevanceScore?: number;
   topics?: string[];
+  images?: string[];
 }
 
 export const SearchResult = ({
@@ -18,7 +19,8 @@ export const SearchResult = ({
   url,
   publishedDate,
   relevanceScore,
-  topics
+  topics,
+  images
 }: SearchResultProps) => {
   return (
     <article className="group relative p-6 bg-card rounded-xl border border-border transition-all duration-300 hover:shadow-soft hover:border-accent/30">
@@ -68,6 +70,28 @@ export const SearchResult = ({
                 +{topics.length - 6} more topics
               </span>
             )}
+          </div>
+        )}
+
+        {/* Images */}
+        {images && images.length > 0 && (
+          <div className="mt-4 flex gap-2 overflow-hidden">
+            {images.slice(0, 3).map((img, index) => (
+              <div 
+                key={index}
+                className="relative w-20 h-20 rounded-lg overflow-hidden bg-muted flex-shrink-0"
+              >
+                <img
+                  src={img}
+                  alt=""
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+              </div>
+            ))}
           </div>
         )}
         

@@ -14,6 +14,7 @@ interface Article {
   published_date: string | null;
   relevance?: number;
   topics?: string[];
+  images?: string[];
 }
 
 const SearchResults = () => {
@@ -128,6 +129,7 @@ const SearchResults = () => {
                     url={article.url}
                     publishedDate={article.published_date || undefined}
                     topics={article.topics}
+                    images={article.images}
                     relevanceScore={article.relevance}
                   />
                 ))}

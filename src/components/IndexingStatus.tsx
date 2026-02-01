@@ -11,26 +11,48 @@ interface IndexingStatusProps {
 export const IndexingStatus = ({ articleCount, onIndexComplete }: IndexingStatusProps) => {
   const [isIndexing, setIsIndexing] = useState(false);
   const [status, setStatus] = useState<'idle' | 'indexing' | 'success' | 'error'>('idle');
+  const [progress, setProgress] = useState<string>('');
   const { toast } = useToast();
 
   const handleIndex = async () => {
     setIsIndexing(true);
     setStatus('indexing');
+    
+    let startEdition = 1;
+    let totalIndexed = 0;
+    const batchSize = 30;
 
     try {
-      const { data, error } = await supabase.functions.invoke('index-articles');
+      // Keep fetching batches until done
+      while (true) {
+        setProgress(`Editions ${startEdition}-${Math.min(startEdition + batchSize - 1, 127)}...`);
+        
+        const { data, error } = await supabase.functions.invoke('index-articles', {
+          body: { startEdition, batchSize }
+        });
 
-      if (error) throw error;
+        if (error) throw error;
+
+        totalIndexed += data.indexed;
+        
+        if (!data.hasMore) {
+          break;
+        }
+        
+        startEdition = data.nextStartEdition;
+      }
 
       setStatus('success');
+      setProgress('');
       toast({
         title: 'Indexing complete',
-        description: `Successfully indexed ${data.indexed} articles`,
+        description: `Successfully indexed ${totalIndexed} articles across all editions`,
       });
       onIndexComplete();
     } catch (error) {
       console.error('Indexing error:', error);
       setStatus('error');
+      setProgress('');
       toast({
         title: 'Indexing failed',
         description: 'Could not index articles. Please try again.',
@@ -56,7 +78,7 @@ export const IndexingStatus = ({ articleCount, onIndexComplete }: IndexingStatus
         {status === 'indexing' ? (
           <>
             <RefreshCw className="w-4 h-4 animate-spin" />
-            Indexing...
+            {progress || 'Indexing...'}
           </>
         ) : status === 'success' ? (
           <>

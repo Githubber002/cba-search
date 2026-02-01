@@ -5,7 +5,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const SUBSTACK_ARCHIVE_URL = 'https://www.crossborderalex.com/archive';
+const BASE_URL = 'https://www.crossborderalex.com/p/global-digital-marketing-and-retail-ed';
+const TOTAL_EDITIONS = 127;
 
 interface Article {
   url: string;
@@ -27,154 +28,140 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    console.log('Fetching archive page...');
+    // Parse request body for batch processing
+    let startEdition = 1;
+    let batchSize = 30; // Process 30 at a time to avoid timeout
     
-    // Fetch the archive page
-    const archiveResponse = await fetch(SUBSTACK_ARCHIVE_URL);
-    const archiveHtml = await archiveResponse.text();
+    try {
+      const body = await req.json();
+      if (body.startEdition) startEdition = body.startEdition;
+      if (body.batchSize) batchSize = body.batchSize;
+    } catch {
+      // No body, use defaults
+    }
 
-    // Extract article URLs from the archive (exclude /comments pages)
-    const articleUrlMatches = archiveHtml.matchAll(/href="(https:\/\/www\.crossborderalex\.com\/p\/[^"]+)"/g);
-    const articleUrls = [...new Set([...articleUrlMatches].map(m => m[1]))]
-      .filter(url => !url.endsWith('/comments'));
+    const endEdition = Math.min(startEdition + batchSize - 1, TOTAL_EDITIONS);
     
-    // Clean up any existing comment URLs from database
-    await supabase
-      .from('articles')
-      .delete()
-      .like('url', '%/comments');
+    console.log(`Indexing editions ${startEdition} to ${endEdition}...`);
 
-    console.log(`Found ${articleUrls.length} article URLs`);
+    // Generate URLs for this batch
+    const articleUrls: string[] = [];
+    for (let i = startEdition; i <= endEdition; i++) {
+      articleUrls.push(`${BASE_URL}${i}`);
+    }
+
+    console.log(`Processing ${articleUrls.length} article URLs`);
 
     const articles: Article[] = [];
     
-    // Fetch each article (limit to prevent timeout)
-    const urlsToProcess = articleUrls.slice(0, 50);
-    
-    for (const url of urlsToProcess) {
-      try {
-        console.log(`Fetching: ${url}`);
-        const articleResponse = await fetch(url);
-        const articleHtml = await articleResponse.text();
+    // Process articles in parallel batches of 5 for speed
+    const parallelBatchSize = 5;
+    for (let i = 0; i < articleUrls.length; i += parallelBatchSize) {
+      const batch = articleUrls.slice(i, i + parallelBatchSize);
+      const batchResults = await Promise.allSettled(
+        batch.map(async (url) => {
+          try {
+            console.log(`Fetching: ${url}`);
+            const articleResponse = await fetch(url);
+            
+            if (!articleResponse.ok) {
+              console.log(`Skipping ${url} - status ${articleResponse.status}`);
+              return null;
+            }
+            
+            const articleHtml = await articleResponse.text();
 
-        // Extract title
-        const titleMatch = articleHtml.match(/<h1[^>]*class="[^"]*post-title[^"]*"[^>]*>([^<]+)<\/h1>/i) ||
-                          articleHtml.match(/<title>([^<|]+)/i);
-        const title = titleMatch ? titleMatch[1].trim() : 'Untitled';
+            // Extract title
+            const titleMatch = articleHtml.match(/<h1[^>]*class="[^"]*post-title[^"]*"[^>]*>([^<]+)<\/h1>/i) ||
+                              articleHtml.match(/<title>([^<|]+)/i);
+            const title = titleMatch ? titleMatch[1].trim() : 'Untitled';
 
-        // Extract subtitle
-        const subtitleMatch = articleHtml.match(/<h3[^>]*class="[^"]*subtitle[^"]*"[^>]*>([^<]+)<\/h3>/i);
-        const subtitle = subtitleMatch ? subtitleMatch[1].trim() : null;
+            // Extract subtitle
+            const subtitleMatch = articleHtml.match(/<h3[^>]*class="[^"]*subtitle[^"]*"[^>]*>([^<]+)<\/h3>/i);
+            const subtitle = subtitleMatch ? subtitleMatch[1].trim() : null;
 
-        // Extract date
-        const dateMatch = articleHtml.match(/datetime="(\d{4}-\d{2}-\d{2})/);
-        const published_date = dateMatch ? dateMatch[1] : null;
+            // Extract date
+            const dateMatch = articleHtml.match(/datetime="(\d{4}-\d{2}-\d{2})/);
+            const published_date = dateMatch ? dateMatch[1] : null;
 
-        // Extract body content - get text from post body
-        const bodyMatch = articleHtml.match(/<div[^>]*class="[^"]*body[^"]*"[^>]*>([\s\S]*?)<\/div>\s*<\/div>\s*<div/i);
-        let content = '';
-        
-        if (bodyMatch) {
-          content = bodyMatch[1]
-            .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
-            .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-            .replace(/<[^>]+>/g, ' ')
-            .replace(/&nbsp;/g, ' ')
-            .replace(/&amp;/g, '&')
-            .replace(/&lt;/g, '<')
-            .replace(/&gt;/g, '>')
-            .replace(/&quot;/g, '"')
-            .replace(/\s+/g, ' ')
-            .trim();
-          
-          // Remove common greeting/intro patterns
-          content = content
-            .replace(/^(Goodmorning|Good morning|Hello|Hi|Hey|everyone)!?\s*/gi, '')
-            .replace(/^!+\s*/g, '') // Remove leading exclamation marks
-            .replace(/^my friends!?\s*/gi, '')
-            .replace(/^another weekend[^:]*:\s*/gi, '')
-            .replace(/^time for your weekly newsletter[^:]*:\s*/gi, '')
-            .replace(/I wish you a great start of the day\.?\s*/gi, '')
-            .replace(/I booked my ticket[^.!]*[.!]\s*/gi, '')
-            .replace(/I hope to travel[^.!]*[.!]\s*/gi, '')
-            .replace(/so stay tuned\.?\s*/gi, '')
-            .replace(/Now let's get on with the newsletter:?\s*/gi, '')
-            .replace(/Welcome back!?\s*/gi, '')
-            .replace(/Thanks for reading[^!]*!?\s*/gi, '')
-            .replace(/Subscribe for free[^.]*\.?\s*/gi, '')
-            .replace(/Inspiration from across the world[^.]*\.?\s*/gi, '')
-            .replace(/Here is your weekly newsletter[^.!]*[.!]\s*/gi, '')
-            .replace(/All topics I like personally\.?\s*/gi, '')
-            .replace(/I hope you enjoy reading[^.!]*[.!]\s*/gi, '')
-            .replace(/I hope you all enjoyed[^.!]*[.!]\s*/gi, '')
-            .replace(/On to the new year[^.!]*[.!]\s*/gi, '')
-            .replace(/Looking forward!?\s*/gi, '')
-            .replace(/Hope to make some nice[^.!]*[.!]\s*/gi, '')
-            .replace(/Let's start:?\s*/gi, '')
-            .replace(/I had a busy[^.!]*[.!]\s*/gi, '')
-            .replace(/so a little delay[^.!]*[.!]\s*/gi, '')
-            .replace(/But I managed to write[^.!]*[.!]\s*/gi, '')
-            .replace(/Thank you!?\s*/gi, '')
-            .replace(/so in March I will show you how it's there!?\s*/gi, '')
-            .replace(/Subscribe\s*/g, '')
-            .replace(/^everyone!\s*/gi, '')
-            .trim();
-        }
+            // Extract body content
+            const bodyMatch = articleHtml.match(/<div[^>]*class="[^"]*body[^"]*"[^>]*>([\s\S]*?)<\/div>\s*<\/div>\s*<div/i);
+            let content = '';
+            
+            if (bodyMatch) {
+              content = bodyMatch[1]
+                .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+                .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+                .replace(/<[^>]+>/g, ' ')
+                .replace(/&nbsp;/g, ' ')
+                .replace(/&amp;/g, '&')
+                .replace(/&lt;/g, '<')
+                .replace(/&gt;/g, '>')
+                .replace(/&quot;/g, '"')
+                .replace(/\s+/g, ' ')
+                .trim();
+              
+              // Clean up common patterns
+              content = content
+                .replace(/^(Goodmorning|Good morning|Hello|Hi|Hey|everyone)!?\s*/gi, '')
+                .replace(/^!+\s*/g, '')
+                .replace(/^my friends!?\s*/gi, '')
+                .replace(/Thanks for reading[^!]*!?\s*/gi, '')
+                .replace(/Subscribe for free[^.]*\.?\s*/gi, '')
+                .replace(/Subscribe\s*/g, '')
+                .trim();
+            }
 
-        // Extract H4 headings as topics (strip emojis at start)
-        const h4Matches = articleHtml.matchAll(/<h4[^>]*>([^<]+)<\/h4>/gi);
-        const topics = [...h4Matches]
-          .map(m => m[1].trim())
-          .filter(t => t.length > 3 && t.length < 200)
-          .map(t => {
-            let cleaned = t
-              .replace(/&amp;/g, '&')
-              .replace(/&nbsp;/g, ' ')
-              .replace(/&#\d+;/g, '') // Remove HTML numeric entities
-              // Remove unicode escape patterns like \uD83C or uD83C
-              .replace(/\\?u[0-9A-Fa-f]{4}/g, '')
-              // Remove any leading non-ASCII or non-letter chars  
-              .replace(/^[^a-zA-Z0-9]+/, '')
-              .trim();
-            return cleaned;
-          })
-          .filter(t => t.length > 3 && !t.toLowerCase().includes('discussion about'));
+            // Fallback: meta description
+            if (!content || content.length < 100) {
+              const metaMatch = articleHtml.match(/<meta[^>]*name="description"[^>]*content="([^"]+)"/i);
+              if (metaMatch) content = metaMatch[1];
+            }
 
-        // Fallback: extract from meta description
-        if (!content || content.length < 100) {
-          const metaMatch = articleHtml.match(/<meta[^>]*name="description"[^>]*content="([^"]+)"/i);
-          if (metaMatch) {
-            content = metaMatch[1];
+            // Extract H4 headings as topics
+            const h4Matches = articleHtml.matchAll(/<h4[^>]*>([^<]+)<\/h4>/gi);
+            const topics = [...h4Matches]
+              .map(m => m[1].trim())
+              .filter(t => t.length > 3 && t.length < 200)
+              .map(t => t
+                .replace(/&amp;/g, '&')
+                .replace(/&nbsp;/g, ' ')
+                .replace(/&#\d+;/g, '')
+                .replace(/\\?u[0-9A-Fa-f]{4}/g, '')
+                .replace(/^[^a-zA-Z0-9]+/, '')
+                .trim()
+              )
+              .filter(t => t.length > 3);
+
+            // Extract images
+            const imgMatches = articleHtml.matchAll(/<img[^>]*src="(https:\/\/substackcdn\.com\/image\/fetch\/[^"]+)"/gi);
+            const images = [...new Set([...imgMatches].map(m => m[1]))]
+              .filter(img => !img.includes('avatar') && !img.includes('logo') && !img.includes('40,h_40'))
+              .slice(0, 3);
+
+            if (title && content && content.length > 50) {
+              return {
+                url,
+                title,
+                subtitle,
+                content: content.slice(0, 5000),
+                published_date,
+                topics,
+                images
+              };
+            }
+            return null;
+          } catch (articleError) {
+            console.error(`Error fetching ${url}:`, articleError);
+            return null;
           }
-        }
+        })
+      );
 
-        // Additional fallback: get og:description
-        if (!content || content.length < 100) {
-          const ogMatch = articleHtml.match(/<meta[^>]*property="og:description"[^>]*content="([^"]+)"/i);
-          if (ogMatch) {
-            content = ogMatch[1];
-          }
+      for (const result of batchResults) {
+        if (result.status === 'fulfilled' && result.value) {
+          articles.push(result.value);
         }
-
-        // Extract images from article (substack media URLs)
-        const imgMatches = articleHtml.matchAll(/<img[^>]*src="(https:\/\/substackcdn\.com\/image\/fetch\/[^"]+)"/gi);
-        const images = [...new Set([...imgMatches].map(m => m[1]))]
-          .filter(img => !img.includes('avatar') && !img.includes('logo') && !img.includes('40,h_40'))
-          .slice(0, 3); // Limit to 3 images per article
-
-        if (title && content && content.length > 50) {
-          articles.push({
-            url,
-            title,
-            subtitle,
-            content: content.slice(0, 5000), // Limit content size
-            published_date,
-            topics,
-            images
-          });
-        }
-      } catch (articleError) {
-        console.error(`Error fetching ${url}:`, articleError);
       }
     }
 
@@ -194,14 +181,20 @@ Deno.serve(async (req) => {
       }
     }
 
-    console.log(`Indexed ${indexed} articles`);
+    console.log(`Indexed ${indexed} articles in this batch`);
+
+    const hasMore = endEdition < TOTAL_EDITIONS;
+    const nextStartEdition = hasMore ? endEdition + 1 : null;
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        found: articleUrls.length,
+        batch: { start: startEdition, end: endEdition },
         processed: articles.length,
-        indexed 
+        indexed,
+        hasMore,
+        nextStartEdition,
+        totalEditions: TOTAL_EDITIONS
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

@@ -31,9 +31,16 @@ Deno.serve(async (req) => {
     const archiveResponse = await fetch(SUBSTACK_ARCHIVE_URL);
     const archiveHtml = await archiveResponse.text();
 
-    // Extract article URLs from the archive
+    // Extract article URLs from the archive (exclude /comments pages)
     const articleUrlMatches = archiveHtml.matchAll(/href="(https:\/\/www\.crossborderalex\.com\/p\/[^"]+)"/g);
-    const articleUrls = [...new Set([...articleUrlMatches].map(m => m[1]))];
+    const articleUrls = [...new Set([...articleUrlMatches].map(m => m[1]))]
+      .filter(url => !url.endsWith('/comments'));
+    
+    // Clean up any existing comment URLs from database
+    await supabase
+      .from('articles')
+      .delete()
+      .like('url', '%/comments');
 
     console.log(`Found ${articleUrls.length} article URLs`);
 

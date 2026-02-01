@@ -90,8 +90,15 @@ Deno.serve(async (req) => {
           // Remove common greeting/intro patterns
           content = content
             .replace(/^(Goodmorning|Good morning|Hello|Hi|Hey|everyone)!?\s*/gi, '')
+            .replace(/^!+\s*/g, '') // Remove leading exclamation marks
+            .replace(/^my friends!?\s*/gi, '')
+            .replace(/^another weekend[^:]*:\s*/gi, '')
+            .replace(/^time for your weekly newsletter[^:]*:\s*/gi, '')
             .replace(/I wish you a great start of the day\.?\s*/gi, '')
             .replace(/I booked my ticket[^.!]*[.!]\s*/gi, '')
+            .replace(/I hope to travel[^.!]*[.!]\s*/gi, '')
+            .replace(/so stay tuned\.?\s*/gi, '')
+            .replace(/Now let's get on with the newsletter:?\s*/gi, '')
             .replace(/Welcome back!?\s*/gi, '')
             .replace(/Thanks for reading[^!]*!?\s*/gi, '')
             .replace(/Subscribe for free[^.]*\.?\s*/gi, '')
@@ -99,8 +106,18 @@ Deno.serve(async (req) => {
             .replace(/Here is your weekly newsletter[^.!]*[.!]\s*/gi, '')
             .replace(/All topics I like personally\.?\s*/gi, '')
             .replace(/I hope you enjoy reading[^.!]*[.!]\s*/gi, '')
+            .replace(/I hope you all enjoyed[^.!]*[.!]\s*/gi, '')
+            .replace(/On to the new year[^.!]*[.!]\s*/gi, '')
+            .replace(/Looking forward!?\s*/gi, '')
+            .replace(/Hope to make some nice[^.!]*[.!]\s*/gi, '')
+            .replace(/Let's start:?\s*/gi, '')
+            .replace(/I had a busy[^.!]*[.!]\s*/gi, '')
+            .replace(/so a little delay[^.!]*[.!]\s*/gi, '')
+            .replace(/But I managed to write[^.!]*[.!]\s*/gi, '')
             .replace(/Thank you!?\s*/gi, '')
             .replace(/so in March I will show you how it's there!?\s*/gi, '')
+            .replace(/Subscribe\s*/g, '')
+            .replace(/^everyone!\s*/gi, '')
             .trim();
         }
 

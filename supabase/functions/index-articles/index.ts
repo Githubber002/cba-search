@@ -14,6 +14,7 @@ interface Article {
   content: string;
   published_date: string | null;
   topics: string[];
+  images: string[];
 }
 
 Deno.serve(async (req) => {
@@ -138,6 +139,12 @@ Deno.serve(async (req) => {
           }
         }
 
+        // Extract images from article (substack media URLs)
+        const imgMatches = articleHtml.matchAll(/<img[^>]*src="(https:\/\/substackcdn\.com\/image\/fetch\/[^"]+)"/gi);
+        const images = [...new Set([...imgMatches].map(m => m[1]))]
+          .filter(img => !img.includes('avatar') && !img.includes('logo') && !img.includes('40,h_40'))
+          .slice(0, 3); // Limit to 3 images per article
+
         if (title && content && content.length > 50) {
           articles.push({
             url,
@@ -145,7 +152,8 @@ Deno.serve(async (req) => {
             subtitle,
             content: content.slice(0, 5000), // Limit content size
             published_date,
-            topics
+            topics,
+            images
           });
         }
       } catch (articleError) {

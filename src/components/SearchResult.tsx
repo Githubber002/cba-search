@@ -95,10 +95,6 @@ export const SearchResult = ({
           </div>
         )}
         
-        <p className="mt-3 text-foreground/80 leading-relaxed line-clamp-2 text-sm">
-          {snippet}
-        </p>
-        
         <div className="mt-4 flex items-center gap-4 text-sm text-muted-foreground">
           {publishedDate && (
             <span className="flex items-center gap-1.5">

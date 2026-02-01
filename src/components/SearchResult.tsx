@@ -23,14 +23,14 @@ export const SearchResult = ({
   images
 }: SearchResultProps) => {
   return (
-    <article className="group relative p-6 bg-card rounded-xl border border-border transition-all duration-300 hover:shadow-soft hover:border-accent/30">
+    <article className="group relative p-6 bg-card border-2 border-border transition-all duration-300 hover:shadow-soft hover:border-accent">
       {/* Relevance indicator */}
       {relevanceScore !== undefined && (
-        <div className="absolute top-4 right-4 flex items-center gap-1.5 text-xs text-muted-foreground">
+        <div className="absolute top-4 right-4 flex items-center gap-2 font-body text-lg text-muted-foreground uppercase">
           <div 
-            className="w-2 h-2 rounded-full"
+            className="w-3 h-3"
             style={{
-              backgroundColor: `hsl(35 ${Math.min(relevanceScore * 100, 90)}% 55%)`
+              backgroundColor: `hsl(120 ${Math.min(relevanceScore * 100, 60)}% 50%)`
             }}
           />
           <span>{Math.round(relevanceScore * 100)}% match</span>
@@ -43,30 +43,30 @@ export const SearchResult = ({
         rel="noopener noreferrer"
         className="block"
       >
-        <h3 className="font-serif text-xl font-normal text-foreground group-hover:text-accent transition-colors pr-24 leading-tight">
+        <h3 className="font-display text-sm text-foreground group-hover:text-accent transition-colors pr-28 leading-relaxed retro-glow">
           {title}
         </h3>
         
         {subtitle && (
-          <p className="mt-2 text-sm text-muted-foreground line-clamp-1">
+          <p className="mt-2 font-body text-lg text-muted-foreground line-clamp-1 uppercase">
             {subtitle}
           </p>
         )}
 
         {/* Topics from H4 headings */}
         {topics && topics.length > 0 && (
-          <div className="mt-3 flex flex-col gap-1.5">
+          <div className="mt-4 flex flex-col gap-2">
             {topics.slice(0, 6).map((topic, index) => (
               <span 
                 key={index}
-                className="inline-flex items-center gap-1.5 text-sm text-muted-foreground"
+                className="inline-flex items-center gap-2 font-body text-lg text-muted-foreground"
               >
-                <Hash className="w-3 h-3 text-accent flex-shrink-0" />
+                <Hash className="w-4 h-4 text-accent flex-shrink-0" />
                 {topic}
               </span>
             ))}
             {topics.length > 6 && (
-              <span className="text-xs text-muted-foreground/70 pl-4">
+              <span className="font-body text-base text-muted-foreground/70 pl-6 uppercase">
                 +{topics.length - 6} more topics
               </span>
             )}
@@ -75,11 +75,11 @@ export const SearchResult = ({
 
         {/* Images */}
         {images && images.length > 0 && (
-          <div className="mt-4 flex gap-2 overflow-hidden">
+          <div className="mt-4 flex gap-3 overflow-hidden">
             {images.slice(0, 3).map((img, index) => (
               <div 
                 key={index}
-                className="relative w-20 h-20 rounded-lg overflow-hidden bg-muted flex-shrink-0"
+                className="relative w-20 h-20 overflow-hidden bg-muted flex-shrink-0 border-2 border-border"
               >
                 <img
                   src={img}
@@ -95,14 +95,14 @@ export const SearchResult = ({
           </div>
         )}
         
-        <div className="mt-4 flex items-center gap-4 text-sm text-muted-foreground">
+        <div className="mt-4 flex items-center gap-6 font-body text-lg text-muted-foreground uppercase">
           {publishedDate && (
-            <span className="flex items-center gap-1.5">
+            <span className="flex items-center gap-2">
               <Calendar className="w-4 h-4" />
               {format(new Date(publishedDate), 'MMM d, yyyy')}
             </span>
           )}
-          <span className="flex items-center gap-1.5 text-accent opacity-0 group-hover:opacity-100 transition-opacity">
+          <span className="flex items-center gap-2 text-accent opacity-0 group-hover:opacity-100 transition-opacity">
             <ExternalLink className="w-4 h-4" />
             Read article
           </span>

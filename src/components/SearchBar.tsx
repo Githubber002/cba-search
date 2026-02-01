@@ -36,10 +36,10 @@ export const SearchBar = ({
     <form onSubmit={handleSubmit} className="w-full">
       <div 
         className={cn(
-          "search-focus relative flex items-center w-full bg-card border border-border rounded-xl transition-all duration-300",
-          "hover:border-accent/50 hover:shadow-soft",
+          "search-focus relative flex items-center w-full bg-card border-2 border-border transition-all duration-300",
+          "hover:border-accent hover:shadow-soft",
           "focus-within:border-accent focus-within:shadow-elevated",
-          isLarge ? "px-6 py-5" : "px-4 py-3"
+          isLarge ? "px-6 py-4" : "px-4 py-3"
         )}
       >
         <Search 
@@ -53,11 +53,11 @@ export const SearchBar = ({
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search articles... try synonyms like 'global trade' or 'marketing strategy'"
+          placeholder="Search articles..."
           autoFocus={autoFocus}
           className={cn(
-            "flex-1 bg-transparent border-none outline-none placeholder:text-muted-foreground/60 font-sans",
-            isLarge ? "mx-4 text-lg" : "mx-3 text-base"
+            "flex-1 bg-transparent border-none outline-none placeholder:text-muted-foreground/60 font-body uppercase tracking-wide",
+            isLarge ? "mx-4 text-2xl" : "mx-3 text-xl"
           )}
         />
         {isLoading ? (
@@ -70,9 +70,9 @@ export const SearchBar = ({
             type="submit"
             disabled={!query.trim()}
             className={cn(
-              "flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium transition-all",
-              "hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed",
-              isLarge ? "text-base" : "text-sm"
+              "flex items-center gap-2 px-4 py-2 bg-accent text-accent-foreground font-body uppercase tracking-wide transition-all border-2 border-transparent",
+              "hover:bg-accent/80 disabled:opacity-50 disabled:cursor-not-allowed",
+              isLarge ? "text-xl" : "text-lg"
             )}
           >
             <Sparkles className="w-4 h-4" />
@@ -81,10 +81,10 @@ export const SearchBar = ({
         )}
       </div>
       <p className={cn(
-        "text-muted-foreground mt-3 text-center",
-        isLarge ? "text-sm" : "text-xs"
+        "text-muted-foreground mt-3 text-center font-body uppercase tracking-wide",
+        isLarge ? "text-lg" : "text-base"
       )}>
-        AI-powered semantic search understands context and synonyms
+        AI-powered semantic search
       </p>
     </form>
   );

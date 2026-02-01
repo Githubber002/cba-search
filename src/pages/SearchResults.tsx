@@ -70,13 +70,13 @@ const SearchResults = () => {
         <header className="flex items-center gap-4 mb-8">
           <button
             onClick={() => navigate('/')}
-            className="p-2 rounded-lg hover:bg-secondary transition-colors"
+            className="p-2 border-2 border-border hover:border-accent hover:text-accent transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <Globe className="w-5 h-5 text-accent" />
-            <span className="font-medium text-sm">Crossborder Alex Search</span>
+            <span className="font-body text-lg uppercase tracking-wider">Crossborder Alex Search</span>
           </div>
         </header>
 
@@ -93,21 +93,21 @@ const SearchResults = () => {
         <main>
           {isLoading ? (
             <div className="py-20 text-center">
-              <div className="inline-flex items-center gap-3 text-muted-foreground">
-                <div className="w-5 h-5 border-2 border-accent border-t-transparent rounded-full animate-spin" />
-                <span>Searching with AI...</span>
+              <div className="inline-flex items-center gap-3 text-muted-foreground font-body text-xl">
+                <div className="w-5 h-5 border-2 border-accent border-t-transparent animate-spin" />
+                <span className="uppercase">Searching with AI...</span>
               </div>
             </div>
           ) : hasSearched && results.length === 0 ? (
             <div className="py-20 text-center">
               <Frown className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
-              <h2 className="font-serif text-2xl text-foreground mb-2">No results found</h2>
-              <p className="text-muted-foreground mb-6">
+              <h2 className="font-display text-lg text-foreground mb-4">No results found</h2>
+              <p className="font-body text-xl text-muted-foreground mb-6">
                 Try different keywords or synonyms. The archive may not have been indexed yet.
               </p>
               <button
                 onClick={() => navigate('/')}
-                className="text-accent hover:underline"
+                className="font-body text-xl text-accent hover:underline uppercase"
               >
                 Go back and re-index articles
               </button>
@@ -115,7 +115,7 @@ const SearchResults = () => {
           ) : (
             <>
               {results.length > 0 && (
-                <p className="text-sm text-muted-foreground mb-6">
+                <p className="font-body text-lg text-muted-foreground mb-6 uppercase">
                   Found {results.length} result{results.length !== 1 ? 's' : ''} for "{query}"
                 </p>
               )}

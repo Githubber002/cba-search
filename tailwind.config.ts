@@ -14,8 +14,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        serif: ['Instrument Serif', 'Georgia', 'serif'],
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        display: ['"Press Start 2P"', 'monospace'],
+        body: ['VT323', 'monospace'],
+        mono: ['VT323', 'monospace'],
       },
       colors: {
         border: "hsl(var(--border))",

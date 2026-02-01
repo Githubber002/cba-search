@@ -53,19 +53,19 @@ export const SearchResult = ({
 
         {/* Topics from H4 headings */}
         {topics && topics.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div className="mt-3 flex flex-col gap-1.5">
             {topics.slice(0, 6).map((topic, index) => (
               <span 
                 key={index}
-                className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium bg-secondary text-secondary-foreground rounded-md"
+                className="inline-flex items-center gap-1.5 text-sm text-muted-foreground"
               >
-                <Hash className="w-3 h-3 text-accent" />
+                <Hash className="w-3 h-3 text-accent flex-shrink-0" />
                 {topic}
               </span>
             ))}
             {topics.length > 6 && (
-              <span className="inline-flex items-center px-2.5 py-1 text-xs text-muted-foreground">
-                +{topics.length - 6} more
+              <span className="text-xs text-muted-foreground/70 pl-4">
+                +{topics.length - 6} more topics
               </span>
             )}
           </div>

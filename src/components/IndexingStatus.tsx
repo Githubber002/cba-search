@@ -64,36 +64,38 @@ export const IndexingStatus = ({ articleCount, onIndexComplete }: IndexingStatus
   };
 
   return (
-    <div className="flex items-center gap-4 px-4 py-3 bg-card border-2 border-border">
-      <div className="flex items-center gap-2 font-body text-lg text-muted-foreground uppercase">
-        <Database className="w-4 h-4" />
-        <span>{articleCount} articles</span>
+    <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 px-3 sm:px-4 py-2 sm:py-3 bg-card border-2 border-border">
+      <div className="flex items-center gap-1.5 sm:gap-2 font-body text-sm sm:text-lg text-muted-foreground uppercase">
+        <Database className="w-3 h-3 sm:w-4 sm:h-4" />
+        <span>{articleCount} indexed</span>
       </div>
       
       <button
         onClick={handleIndex}
         disabled={isIndexing}
-        className="flex items-center gap-2 px-3 py-1.5 font-body text-lg uppercase bg-secondary text-secondary-foreground border-2 border-border transition-colors hover:border-accent hover:text-accent disabled:opacity-50"
+        className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 font-body text-sm sm:text-lg uppercase bg-secondary text-secondary-foreground border-2 border-border transition-colors hover:border-accent hover:text-accent disabled:opacity-50"
       >
         {status === 'indexing' ? (
           <>
-            <RefreshCw className="w-4 h-4 animate-spin" />
-            {progress || 'Indexing...'}
+            <RefreshCw className="w-3 h-3 sm:w-4 sm:h-4 animate-spin" />
+            <span className="hidden sm:inline">{progress || 'Indexing...'}</span>
+            <span className="sm:hidden">...</span>
           </>
         ) : status === 'success' ? (
           <>
-            <Check className="w-4 h-4 text-accent" />
-            Updated
+            <Check className="w-3 h-3 sm:w-4 sm:h-4 text-accent" />
+            <span className="hidden sm:inline">Updated</span>
           </>
         ) : status === 'error' ? (
           <>
-            <AlertCircle className="w-4 h-4 text-destructive" />
+            <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 text-destructive" />
             Retry
           </>
         ) : (
           <>
-            <RefreshCw className="w-4 h-4" />
-            Re-index
+            <RefreshCw className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span className="hidden sm:inline">Re-index</span>
+            <span className="sm:hidden">Index</span>
           </>
         )}
       </button>

@@ -220,3 +220,35 @@
     hsl(0 0% 0% / 0.1) 4px
   );
 }
+
+/* C64 blinking block cursor */
+@keyframes c64-cursor-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+.c64-cursor {
+  caret-color: transparent;
+}
+
+.c64-cursor-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.c64-cursor-wrapper::after {
+  content: '';
+  position: absolute;
+  width: 0.65em;
+  height: 1.1em;
+  background-color: hsl(var(--accent));
+  animation: c64-cursor-blink 0.8s step-end infinite;
+  pointer-events: none;
+  opacity: 0;
+  left: var(--cursor-position, 0.5em);
+}
+
+.c64-cursor-wrapper:focus-within::after {
+  opacity: 1;
+}

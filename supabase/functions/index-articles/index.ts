@@ -13,6 +13,7 @@ interface Article {
   subtitle: string | null;
   content: string;
   published_date: string | null;
+  topics: string[];
 }
 
 Deno.serve(async (req) => {
@@ -86,6 +87,13 @@ Deno.serve(async (req) => {
             .trim();
         }
 
+        // Extract H4 headings as topics
+        const h4Matches = articleHtml.matchAll(/<h4[^>]*>([^<]+)<\/h4>/gi);
+        const topics = [...h4Matches]
+          .map(m => m[1].trim())
+          .filter(t => t.length > 3 && t.length < 200)
+          .map(t => t.replace(/&amp;/g, '&').replace(/&nbsp;/g, ' '));
+
         // Fallback: extract from meta description
         if (!content || content.length < 100) {
           const metaMatch = articleHtml.match(/<meta[^>]*name="description"[^>]*content="([^"]+)"/i);
@@ -108,7 +116,8 @@ Deno.serve(async (req) => {
             title,
             subtitle,
             content: content.slice(0, 5000), // Limit content size
-            published_date
+            published_date,
+            topics
           });
         }
       } catch (articleError) {

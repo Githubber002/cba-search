@@ -22,6 +22,7 @@ export type Database = {
           published_date: string | null
           subtitle: string | null
           title: string
+          topics: string[] | null
           updated_at: string
           url: string
         }
@@ -32,6 +33,7 @@ export type Database = {
           published_date?: string | null
           subtitle?: string | null
           title: string
+          topics?: string[] | null
           updated_at?: string
           url: string
         }
@@ -42,6 +44,7 @@ export type Database = {
           published_date?: string | null
           subtitle?: string | null
           title?: string
+          topics?: string[] | null
           updated_at?: string
           url?: string
         }

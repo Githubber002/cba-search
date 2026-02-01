@@ -13,6 +13,7 @@ interface Article {
   url: string;
   published_date: string | null;
   relevance?: number;
+  topics?: string[];
 }
 
 const SearchResults = () => {
@@ -126,6 +127,7 @@ const SearchResults = () => {
                     snippet={createSnippet(article.content)}
                     url={article.url}
                     publishedDate={article.published_date || undefined}
+                    topics={article.topics}
                     relevanceScore={article.relevance}
                   />
                 ))}

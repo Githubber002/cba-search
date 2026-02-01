@@ -1,4 +1,4 @@
-import { Calendar, ExternalLink, FileText } from 'lucide-react';
+import { Calendar, ExternalLink, Hash } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface SearchResultProps {
@@ -8,6 +8,7 @@ interface SearchResultProps {
   url: string;
   publishedDate?: string;
   relevanceScore?: number;
+  topics?: string[];
 }
 
 export const SearchResult = ({
@@ -16,7 +17,8 @@ export const SearchResult = ({
   snippet,
   url,
   publishedDate,
-  relevanceScore
+  relevanceScore,
+  topics
 }: SearchResultProps) => {
   return (
     <article className="group relative p-6 bg-card rounded-xl border border-border transition-all duration-300 hover:shadow-soft hover:border-accent/30">
@@ -48,8 +50,28 @@ export const SearchResult = ({
             {subtitle}
           </p>
         )}
+
+        {/* Topics from H4 headings */}
+        {topics && topics.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {topics.slice(0, 6).map((topic, index) => (
+              <span 
+                key={index}
+                className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium bg-secondary text-secondary-foreground rounded-md"
+              >
+                <Hash className="w-3 h-3 text-accent" />
+                {topic}
+              </span>
+            ))}
+            {topics.length > 6 && (
+              <span className="inline-flex items-center px-2.5 py-1 text-xs text-muted-foreground">
+                +{topics.length - 6} more
+              </span>
+            )}
+          </div>
+        )}
         
-        <p className="mt-3 text-foreground/80 leading-relaxed line-clamp-3">
+        <p className="mt-3 text-foreground/80 leading-relaxed line-clamp-2 text-sm">
           {snippet}
         </p>
         

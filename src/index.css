@@ -2,86 +2,87 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&display=swap');
 
 @layer base {
   :root {
-    /* Editorial color palette - warm slate with amber accent */
-    --background: 40 20% 98%;
-    --foreground: 220 25% 12%;
+    /* Commodore 64 inspired color palette */
+    --background: 240 60% 12%;
+    --foreground: 200 100% 75%;
 
-    --card: 40 15% 96%;
-    --card-foreground: 220 25% 12%;
+    --card: 240 50% 16%;
+    --card-foreground: 200 100% 75%;
 
-    --popover: 40 20% 98%;
-    --popover-foreground: 220 25% 12%;
+    --popover: 240 60% 12%;
+    --popover-foreground: 200 100% 75%;
 
-    --primary: 220 25% 18%;
-    --primary-foreground: 40 20% 98%;
+    --primary: 200 100% 75%;
+    --primary-foreground: 240 60% 12%;
 
-    --secondary: 40 15% 92%;
-    --secondary-foreground: 220 25% 18%;
+    --secondary: 240 40% 22%;
+    --secondary-foreground: 200 100% 75%;
 
-    --muted: 40 12% 90%;
-    --muted-foreground: 220 10% 45%;
+    --muted: 240 40% 20%;
+    --muted-foreground: 200 60% 55%;
 
-    --accent: 35 90% 55%;
-    --accent-foreground: 220 25% 12%;
+    --accent: 120 60% 50%;
+    --accent-foreground: 240 60% 12%;
 
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 40 20% 98%;
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 200 100% 75%;
 
-    --border: 40 15% 88%;
-    --input: 40 15% 88%;
-    --ring: 35 90% 55%;
+    --border: 200 100% 75%;
+    --input: 240 40% 22%;
+    --ring: 120 60% 50%;
 
-    --radius: 0.75rem;
+    --radius: 0;
 
     /* Custom design tokens */
-    --font-serif: 'Instrument Serif', Georgia, serif;
-    --font-sans: 'Inter', system-ui, sans-serif;
+    --font-display: 'Press Start 2P', monospace;
+    --font-body: 'VT323', monospace;
     
-    --shadow-soft: 0 2px 8px -2px hsl(220 25% 12% / 0.06), 0 4px 16px -4px hsl(220 25% 12% / 0.08);
-    --shadow-elevated: 0 4px 16px -4px hsl(220 25% 12% / 0.1), 0 8px 32px -8px hsl(220 25% 12% / 0.12);
+    --shadow-soft: 4px 4px 0 hsl(200 100% 75% / 0.2);
+    --shadow-elevated: 6px 6px 0 hsl(200 100% 75% / 0.3);
     
-    --gradient-warm: linear-gradient(135deg, hsl(35 90% 55% / 0.1) 0%, hsl(40 20% 98%) 100%);
-    --gradient-subtle: linear-gradient(180deg, hsl(40 20% 98%) 0%, hsl(40 15% 96%) 100%);
+    --gradient-warm: linear-gradient(180deg, hsl(240 60% 12%) 0%, hsl(240 50% 16%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(240 60% 12%) 0%, hsl(240 55% 14%) 100%);
   }
 
   .dark {
-    --background: 220 25% 8%;
-    --foreground: 40 15% 92%;
+    /* Dark mode uses same palette - C64 is already dark */
+    --background: 240 60% 10%;
+    --foreground: 200 100% 75%;
 
-    --card: 220 25% 12%;
-    --card-foreground: 40 15% 92%;
+    --card: 240 50% 14%;
+    --card-foreground: 200 100% 75%;
 
-    --popover: 220 25% 10%;
-    --popover-foreground: 40 15% 92%;
+    --popover: 240 60% 10%;
+    --popover-foreground: 200 100% 75%;
 
-    --primary: 40 15% 92%;
-    --primary-foreground: 220 25% 12%;
+    --primary: 200 100% 75%;
+    --primary-foreground: 240 60% 10%;
 
-    --secondary: 220 20% 18%;
-    --secondary-foreground: 40 15% 92%;
+    --secondary: 240 40% 20%;
+    --secondary-foreground: 200 100% 75%;
 
-    --muted: 220 20% 20%;
-    --muted-foreground: 40 10% 55%;
+    --muted: 240 40% 18%;
+    --muted-foreground: 200 60% 50%;
 
-    --accent: 35 85% 50%;
-    --accent-foreground: 220 25% 8%;
+    --accent: 120 60% 50%;
+    --accent-foreground: 240 60% 10%;
 
     --destructive: 0 62% 45%;
-    --destructive-foreground: 40 15% 92%;
+    --destructive-foreground: 200 100% 75%;
 
-    --border: 220 20% 20%;
-    --input: 220 20% 20%;
-    --ring: 35 85% 50%;
+    --border: 200 100% 75%;
+    --input: 240 40% 20%;
+    --ring: 120 60% 50%;
     
-    --shadow-soft: 0 2px 8px -2px hsl(0 0% 0% / 0.3), 0 4px 16px -4px hsl(0 0% 0% / 0.4);
-    --shadow-elevated: 0 4px 16px -4px hsl(0 0% 0% / 0.4), 0 8px 32px -8px hsl(0 0% 0% / 0.5);
+    --shadow-soft: 4px 4px 0 hsl(200 100% 75% / 0.15);
+    --shadow-elevated: 6px 6px 0 hsl(200 100% 75% / 0.25);
     
-    --gradient-warm: linear-gradient(135deg, hsl(35 85% 50% / 0.08) 0%, hsl(220 25% 8%) 100%);
-    --gradient-subtle: linear-gradient(180deg, hsl(220 25% 8%) 0%, hsl(220 25% 10%) 100%);
+    --gradient-warm: linear-gradient(180deg, hsl(240 60% 10%) 0%, hsl(240 50% 14%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(240 60% 10%) 0%, hsl(240 55% 12%) 100%);
   }
 }
 
@@ -92,21 +93,25 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: var(--font-sans);
+    font-family: var(--font-body);
+    font-size: 1.25rem;
+    letter-spacing: 0.02em;
   }
   
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-serif);
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 }
 
 @layer utilities {
-  .font-serif {
-    font-family: var(--font-serif);
+  .font-display {
+    font-family: var(--font-display);
   }
   
-  .font-sans {
-    font-family: var(--font-sans);
+  .font-body {
+    font-family: var(--font-body);
   }
   
   .shadow-soft {
@@ -128,36 +133,45 @@
   .text-balance {
     text-wrap: balance;
   }
+
+  .retro-border {
+    border: 2px solid hsl(var(--border));
+    box-shadow: 4px 4px 0 hsl(200 100% 75% / 0.3);
+  }
+
+  .retro-glow {
+    text-shadow: 0 0 10px hsl(200 100% 75% / 0.5);
+  }
 }
 
-/* Search input animation */
-@keyframes search-glow {
-  0%, 100% {
-    box-shadow: 0 0 0 0 hsl(35 90% 55% / 0);
+/* Search input animation - retro blink */
+@keyframes retro-blink {
+  0%, 50% {
+    border-color: hsl(200 100% 75%);
   }
-  50% {
-    box-shadow: 0 0 24px 4px hsl(35 90% 55% / 0.15);
+  51%, 100% {
+    border-color: hsl(120 60% 50%);
   }
 }
 
 .search-focus:focus-within {
-  animation: search-glow 2s ease-in-out infinite;
+  animation: retro-blink 1s step-end infinite;
 }
 
 /* Highlight animation for search results */
 @keyframes highlight-pulse {
   0%, 100% {
-    background-color: hsl(35 90% 55% / 0);
+    background-color: hsl(120 60% 50% / 0);
   }
   50% {
-    background-color: hsl(35 90% 55% / 0.2);
+    background-color: hsl(120 60% 50% / 0.3);
   }
 }
 
 .highlight-match {
-  @apply rounded px-0.5 -mx-0.5;
+  @apply px-0.5 -mx-0.5;
   animation: highlight-pulse 1.5s ease-in-out;
-  background-color: hsl(35 90% 55% / 0.15);
+  background-color: hsl(120 60% 50% / 0.2);
 }
 
 /* Smooth page transitions */
@@ -191,3 +205,18 @@
 .animate-stagger > *:nth-child(8) { animation-delay: 350ms; }
 .animate-stagger > *:nth-child(9) { animation-delay: 400ms; }
 .animate-stagger > *:nth-child(10) { animation-delay: 450ms; }
+
+/* Scanline effect for extra retro feel */
+.scanlines::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 2px,
+    hsl(0 0% 0% / 0.1) 2px,
+    hsl(0 0% 0% / 0.1) 4px
+  );
+}

@@ -26,13 +26,13 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen gradient-warm">
+    <div className="min-h-screen gradient-warm relative">
       <div className="container max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
         <header className="flex justify-between items-center mb-16">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <Globe className="w-5 h-5 text-accent" />
-            <span className="font-medium text-sm text-muted-foreground">
+            <span className="font-body text-lg text-muted-foreground uppercase tracking-wider">
               Crossborder Alex Search
             </span>
           </div>
@@ -45,18 +45,18 @@ const Index = () => {
         {/* Hero */}
         <main className="flex flex-col items-center text-center pt-12 pb-24">
           <div className="animate-fade-in-up">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 text-accent rounded-full text-sm font-medium mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/20 text-accent border-2 border-accent text-sm font-body uppercase tracking-wide mb-8">
               <Sparkles className="w-4 h-4" />
               AI-Powered Semantic Search
             </div>
           </div>
 
-          <h1 className="font-serif text-5xl md:text-6xl lg:text-7xl text-foreground leading-tight mb-6 text-balance animate-fade-in-up" style={{ animationDelay: '100ms' }}>
+          <h1 className="font-display text-2xl md:text-3xl lg:text-4xl text-foreground leading-relaxed mb-6 text-balance animate-fade-in-up retro-glow" style={{ animationDelay: '100ms' }}>
             Search
-            <span className="italic text-accent"> Crossborder Alex</span>
+            <span className="text-accent block mt-2">Crossborder Alex</span>
           </h1>
 
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-12 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
+          <p className="font-body text-xl md:text-2xl text-muted-foreground max-w-2xl mb-12 animate-fade-in-up leading-relaxed" style={{ animationDelay: '200ms' }}>
             Find articles on global e-commerce, marketing, AI, and retail. 
             Our semantic search understands synonyms and context—not just keywords.
           </p>
@@ -72,19 +72,19 @@ const Index = () => {
 
           {/* Example searches */}
           <div className="mt-12 animate-fade-in-up" style={{ animationDelay: '400ms' }}>
-            <p className="text-sm text-muted-foreground mb-4">Try searching for:</p>
-            <div className="flex flex-wrap justify-center gap-2">
+            <p className="font-body text-lg text-muted-foreground mb-4 uppercase">Try searching for:</p>
+            <div className="flex flex-wrap justify-center gap-3">
               {[
-                'international expansion strategies',
+                'international expansion',
                 'AI in retail',
                 'cross-cultural marketing',
-                'e-commerce trends Asia',
-                'product localization'
+                'e-commerce Asia',
+                'localization'
               ].map((example) => (
                 <button
                   key={example}
                   onClick={() => handleSearch(example)}
-                  className="px-4 py-2 text-sm bg-card border border-border rounded-full text-muted-foreground hover:text-foreground hover:border-accent/50 transition-all"
+                  className="px-4 py-2 font-body text-lg bg-card border-2 border-border text-muted-foreground hover:text-accent hover:border-accent transition-all uppercase tracking-wide"
                 >
                   {example}
                 </button>

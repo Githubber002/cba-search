@@ -13,7 +13,6 @@ const URL_EXCEPTIONS: Record<number, string> = {
   1: 'https://www.crossborderalex.com/p/global-digital-marketing-retail-ed1',
   2: 'https://www.crossborderalex.com/p/global-digital-marketing-and-retail',
   3: 'https://www.crossborderalex.com/p/global-digital-marketing-and-retail-075',
-  4: 'https://www.crossborderalex.com/p/global-digital-marketing-and-retail-722',
   5: 'https://www.crossborderalex.com/p/global-digital-marketing-and-retail-722',
   11: 'https://www.crossborderalex.com/p/global-digital-marketing-and-retail-584',
   17: 'https://www.crossborderalex.com/p/global-digital-marketing-and-retail-c3a',

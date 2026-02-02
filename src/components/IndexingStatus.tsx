@@ -18,17 +18,17 @@ export const IndexingStatus = ({ articleCount, onIndexComplete }: IndexingStatus
     setIsIndexing(true);
     setStatus('indexing');
     
-    let startEdition = 1;
+    let startIndex = 0;
     let totalIndexed = 0;
     const batchSize = 30;
 
     try {
       // Keep fetching batches until done
       while (true) {
-        setProgress(`Editions ${startEdition}-${Math.min(startEdition + batchSize - 1, 127)}...`);
+        setProgress(`Articles ${startIndex + 1}-${startIndex + batchSize}...`);
         
         const { data, error } = await supabase.functions.invoke('index-articles', {
-          body: { startEdition, batchSize }
+          body: { startIndex, batchSize }
         });
 
         if (error) throw error;
@@ -39,14 +39,14 @@ export const IndexingStatus = ({ articleCount, onIndexComplete }: IndexingStatus
           break;
         }
         
-        startEdition = data.nextStartEdition;
+        startIndex = data.nextStartIndex;
       }
 
       setStatus('success');
       setProgress('');
       toast({
         title: 'Indexing complete',
-        description: `Successfully indexed ${totalIndexed} articles across all editions`,
+        description: `Successfully indexed ${totalIndexed} articles`,
       });
       onIndexComplete();
     } catch (error) {

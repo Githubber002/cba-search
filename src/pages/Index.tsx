@@ -1,25 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Globe, Search as SearchIcon, Sparkles } from 'lucide-react';
+import { Globe, Sparkles } from 'lucide-react';
 import { SearchBar } from '@/components/SearchBar';
-import { IndexingStatus } from '@/components/IndexingStatus';
-import { supabase } from '@/integrations/supabase/client';
 
 const Index = () => {
   const navigate = useNavigate();
-  const [articleCount, setArticleCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-
-  const fetchArticleCount = async () => {
-    const { count } = await supabase
-      .from('articles')
-      .select('*', { count: 'exact', head: true });
-    setArticleCount(count || 0);
-  };
-
-  useEffect(() => {
-    fetchArticleCount();
-  }, []);
 
   const handleSearch = (query: string) => {
     navigate(`/search?q=${encodeURIComponent(query)}`);
@@ -29,17 +15,13 @@ const Index = () => {
     <div className="min-h-screen gradient-warm relative">
       <div className="container max-w-4xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
         {/* Header */}
-        <header className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8 sm:mb-16">
+        <header className="flex justify-center items-center mb-8 sm:mb-16">
           <div className="flex items-center gap-2 sm:gap-3">
             <Globe className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
             <span className="font-body text-base sm:text-lg text-muted-foreground uppercase tracking-wider">
               Crossborder Alex Search
             </span>
           </div>
-          <IndexingStatus 
-            articleCount={articleCount} 
-            onIndexComplete={fetchArticleCount} 
-          />
         </header>
 
         {/* Hero */}

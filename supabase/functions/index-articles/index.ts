@@ -14,11 +14,19 @@ const URL_EXCEPTIONS: Record<number, string> = {
   2: 'https://www.crossborderalex.com/p/global-digital-marketing-and-retail',
   3: 'https://www.crossborderalex.com/p/global-digital-marketing-and-retail-075',
   4: 'https://www.crossborderalex.com/p/global-digital-marketing-and-retail-722',
+  5: 'https://www.crossborderalex.com/p/global-digital-marketing-and-retail-722',
   11: 'https://www.crossborderalex.com/p/global-digital-marketing-and-retail-584',
   17: 'https://www.crossborderalex.com/p/global-digital-marketing-and-retail-c3a',
   19: 'https://www.crossborderalex.com/p/global-digital-marketing-and-retail-5b7',
+  73: 'https://www.crossborderalex.com/p/global-digital-marketing-and-retail-ed73',
   109: 'https://www.crossborderalex.com/p/global-digital-marketing-and-retail-ed109109',
 };
+
+// Editions that use ed-{n} pattern (with hyphen)
+const HYPHENATED_EDITIONS = new Set([
+  ...Array.from({ length: 21 }, (_, i) => 22 + i), // 22-42
+  ...Array.from({ length: 5 }, (_, i) => 44 + i),  // 44-48
+]);
 
 interface Article {
   url: string;
@@ -37,6 +45,8 @@ function generateAllArticleUrls(): string[] {
   for (let i = 1; i <= TOTAL_EDITIONS; i++) {
     if (URL_EXCEPTIONS[i]) {
       urls.push(URL_EXCEPTIONS[i]);
+    } else if (HYPHENATED_EDITIONS.has(i)) {
+      urls.push(`${BASE_URL}-${i}`); // ed-22, ed-42, etc.
     } else {
       urls.push(`${BASE_URL}${i}`);
     }

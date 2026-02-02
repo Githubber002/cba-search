@@ -5,13 +5,19 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const RSS_FEED_URL = 'https://www.crossborderalex.com/feed';
 const BASE_URL = 'https://www.crossborderalex.com/p/global-digital-marketing-and-retail-ed';
 const TOTAL_EDITIONS = 127;
 
-// Known URL exceptions (edition number -> actual URL suffix)
+// Known URL exceptions (edition number -> full URL)
 const URL_EXCEPTIONS: Record<number, string> = {
-  109: 'ed109109', // Typo in original
+  1: 'https://www.crossborderalex.com/p/global-digital-marketing-retail-ed1',
+  2: 'https://www.crossborderalex.com/p/global-digital-marketing-and-retail',
+  3: 'https://www.crossborderalex.com/p/global-digital-marketing-and-retail-075',
+  4: 'https://www.crossborderalex.com/p/global-digital-marketing-and-retail-722',
+  11: 'https://www.crossborderalex.com/p/global-digital-marketing-and-retail-584',
+  17: 'https://www.crossborderalex.com/p/global-digital-marketing-and-retail-c3a',
+  19: 'https://www.crossborderalex.com/p/global-digital-marketing-and-retail-5b7',
+  109: 'https://www.crossborderalex.com/p/global-digital-marketing-and-retail-ed109109',
 };
 
 interface Article {
@@ -30,7 +36,7 @@ function generateAllArticleUrls(): string[] {
   
   for (let i = 1; i <= TOTAL_EDITIONS; i++) {
     if (URL_EXCEPTIONS[i]) {
-      urls.push(`https://www.crossborderalex.com/p/global-digital-marketing-and-retail-${URL_EXCEPTIONS[i]}`);
+      urls.push(URL_EXCEPTIONS[i]);
     } else {
       urls.push(`${BASE_URL}${i}`);
     }

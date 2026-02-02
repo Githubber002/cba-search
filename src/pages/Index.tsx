@@ -79,7 +79,10 @@ const Index = () => {
                 'AI in retail',
                 'cross-cultural marketing',
                 'e-commerce Asia',
-                'localization'
+                'localization',
+                'social commerce',
+                'logistics China',
+                'consumer trends'
               ].map((example) => (
                 <button
                   key={example}

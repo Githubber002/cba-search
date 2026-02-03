@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Globe, Sparkles, Database, Plane, Ship, Package, MapPin } from 'lucide-react';
+import { Globe, Sparkles, Database, Plane, Ship, ArrowRight } from 'lucide-react';
 import { SearchBar } from '@/components/SearchBar';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -25,63 +25,48 @@ const Index = () => {
 
   return (
     <div className="min-h-screen gradient-warm relative overflow-hidden">
-      {/* Floating commerce icons background */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-[0.03]">
-        <Plane className="absolute top-[10%] left-[5%] w-16 h-16 sm:w-24 sm:h-24 text-foreground animate-pulse" style={{ animationDuration: '4s' }} />
-        <Ship className="absolute top-[60%] right-[8%] w-20 h-20 sm:w-32 sm:h-32 text-foreground animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
-        <Package className="absolute bottom-[20%] left-[12%] w-12 h-12 sm:w-20 sm:h-20 text-foreground animate-pulse" style={{ animationDuration: '3s', animationDelay: '2s' }} />
-        <Globe className="absolute top-[30%] right-[15%] w-24 h-24 sm:w-40 sm:h-40 text-foreground animate-pulse" style={{ animationDuration: '6s', animationDelay: '0.5s' }} />
-        <MapPin className="absolute bottom-[40%] left-[70%] w-10 h-10 sm:w-16 sm:h-16 text-foreground animate-pulse" style={{ animationDuration: '4s', animationDelay: '1.5s' }} />
+      {/* Subtle floating elements */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <Globe className="absolute top-[15%] right-[10%] w-32 h-32 sm:w-48 sm:h-48 text-primary animate-float" style={{ animationDelay: '0s' }} />
+        <Plane className="absolute bottom-[25%] left-[8%] w-16 h-16 sm:w-24 sm:h-24 text-primary animate-float" style={{ animationDelay: '2s' }} />
+        <Ship className="absolute top-[60%] right-[5%] w-20 h-20 sm:w-28 sm:h-28 text-primary animate-float" style={{ animationDelay: '4s' }} />
       </div>
 
-      <div className="container max-w-4xl mx-auto px-3 sm:px-4 py-6 sm:py-8 relative z-10">
+      <div className="container max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-10">
         {/* Header */}
-        <header className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8 sm:mb-16">
-          <div className="flex items-center gap-2 sm:gap-3">
+        <header className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-12 sm:mb-20">
+          <div className="flex items-center gap-3">
             <div className="relative">
-              <Globe className="w-5 h-5 sm:w-6 sm:h-6 text-accent" />
-              <div className="absolute -top-1 -right-1 w-2 h-2 bg-accent rounded-full animate-ping" />
+              <Globe className="w-7 h-7 sm:w-8 sm:h-8 text-primary" />
+              <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-accent rounded-full animate-globe-pulse" />
             </div>
-            <span className="font-body text-base sm:text-lg text-muted-foreground uppercase tracking-wider">
-              Crossborder Alex Search
+            <span className="font-display text-lg sm:text-xl text-foreground">
+              Crossborder Alex
             </span>
           </div>
-          <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-card border-2 border-border">
-            <Database className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
-            <span className="font-body text-sm sm:text-lg text-muted-foreground uppercase">
+          <div className="flex items-center gap-2 px-4 py-2 bg-card rounded-full shadow-soft border border-border">
+            <Database className="w-4 h-4 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">
               {articleCount} articles indexed
             </span>
           </div>
         </header>
 
         {/* Hero */}
-        <main className="flex flex-col items-center text-center pt-8 sm:pt-12 pb-16 sm:pb-24">
-          {/* Region tags */}
-          <div className="flex flex-wrap justify-center gap-2 mb-6 animate-fade-in-up">
-            {['🇺🇸', '🇨🇳', '🇪🇺', '🇯🇵', '🇰🇷', '🇧🇷', '🇮🇳', '🇬🇧'].map((flag, i) => (
-              <span 
-                key={flag} 
-                className="text-lg sm:text-xl opacity-60 hover:opacity-100 transition-opacity cursor-default"
-                style={{ animationDelay: `${i * 50}ms` }}
-              >
-                {flag}
-              </span>
-            ))}
-          </div>
-
+        <main className="flex flex-col items-center text-center pt-4 sm:pt-8 pb-16 sm:pb-24">
           <div className="animate-fade-in-up">
-            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-accent/20 text-accent border-2 border-accent text-xs sm:text-sm font-body uppercase tracking-wide mb-6 sm:mb-8">
-              <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium mb-8">
+              <Sparkles className="w-4 h-4" />
               AI-Powered Semantic Search
             </div>
           </div>
 
-          <h1 className="font-display text-base sm:text-xl md:text-2xl lg:text-3xl text-foreground leading-relaxed mb-4 sm:mb-6 text-balance animate-fade-in-up retro-glow px-2" style={{ animationDelay: '100ms' }}>
+          <h1 className="font-display text-3xl sm:text-4xl md:text-5xl text-foreground leading-tight mb-6 text-balance animate-fade-in-up px-2" style={{ animationDelay: '100ms' }}>
             Your Gateway to
-            <span className="text-accent block mt-2">Global E-Commerce Intelligence</span>
+            <span className="text-primary block mt-1">Global E-Commerce Intelligence</span>
           </h1>
 
-          <p className="font-body text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-2xl mb-8 sm:mb-12 animate-fade-in-up leading-relaxed px-2" style={{ animationDelay: '200ms' }}>
+          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mb-10 animate-fade-in-up leading-relaxed px-2" style={{ animationDelay: '200ms' }}>
             Explore {articleCount}+ articles on international expansion, cross-border logistics, 
             localization strategies, and emerging markets.
           </p>
@@ -96,10 +81,11 @@ const Index = () => {
           </div>
 
           {/* Category chips */}
-          <div className="mt-8 sm:mt-12 animate-fade-in-up px-2" style={{ animationDelay: '400ms' }}>
-            <p className="font-body text-base sm:text-lg text-muted-foreground mb-4 uppercase flex items-center justify-center gap-2">
-              <Package className="w-4 h-4" />
+          <div className="mt-12 sm:mt-16 animate-fade-in-up px-2" style={{ animationDelay: '400ms' }}>
+            <p className="text-sm text-muted-foreground mb-5 flex items-center justify-center gap-2">
+              <span className="w-8 h-px bg-border" />
               Popular Topics
+              <span className="w-8 h-px bg-border" />
             </p>
             <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
               {[
@@ -115,10 +101,11 @@ const Index = () => {
                 <button
                   key={label}
                   onClick={() => handleSearch(label)}
-                  className="group px-3 py-1.5 sm:px-4 sm:py-2 font-body text-base sm:text-lg bg-card border-2 border-border text-muted-foreground hover:text-accent hover:border-accent transition-all uppercase tracking-wide flex items-center gap-2"
+                  className="group px-4 py-2 bg-card rounded-full border border-border text-sm text-muted-foreground hover:text-primary hover:border-primary hover:shadow-soft transition-all flex items-center gap-2"
                 >
-                  <span className="opacity-70 group-hover:opacity-100 transition-opacity">{icon}</span>
+                  <span>{icon}</span>
                   {label}
+                  <ArrowRight className="w-3 h-3 opacity-0 -ml-1 group-hover:opacity-100 group-hover:ml-0 transition-all" />
                 </button>
               ))}
             </div>
@@ -127,10 +114,10 @@ const Index = () => {
 
         {/* Footer */}
         <footer className="text-center text-sm text-muted-foreground flex flex-col items-center gap-3">
-          <div className="flex items-center gap-2 text-xs uppercase tracking-wider opacity-60">
-            <Plane className="w-3 h-3" />
+          <div className="flex items-center gap-3 opacity-60">
+            <span className="w-8 h-px bg-border" />
             <span>Connecting markets worldwide</span>
-            <Ship className="w-3 h-3" />
+            <span className="w-8 h-px bg-border" />
           </div>
           <p>
             Powered by{' '}
@@ -138,7 +125,7 @@ const Index = () => {
               href="https://www.crossborderalex.com" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-accent hover:underline"
+              className="text-primary hover:underline font-medium"
             >
               crossborderalex.com
             </a>

@@ -14,9 +14,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ['"Press Start 2P"', 'monospace'],
-        body: ['VT323', 'monospace'],
-        mono: ['VT323', 'monospace'],
+        display: ['"Playfair Display"', 'Georgia', 'serif'],
+        body: ['Inter', 'system-ui', 'sans-serif'],
+        mono: ['ui-monospace', 'monospace'],
       },
       colors: {
         border: "hsl(var(--border))",

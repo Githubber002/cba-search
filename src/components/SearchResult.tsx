@@ -23,14 +23,14 @@ export const SearchResult = ({
   images
 }: SearchResultProps) => {
   return (
-    <article className="group relative p-4 sm:p-6 bg-card border-2 border-border transition-all duration-300 hover:shadow-soft hover:border-accent">
+    <article className="group relative p-5 sm:p-6 bg-card rounded-xl border border-border transition-all duration-200 hover:shadow-soft hover:border-primary/30">
       {/* Relevance indicator */}
       {relevanceScore !== undefined && (
-        <div className="flex items-center gap-2 font-body text-sm sm:text-lg text-muted-foreground uppercase mb-3 sm:mb-0 sm:absolute sm:top-4 sm:right-4">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3 sm:mb-0 sm:absolute sm:top-5 sm:right-5">
           <div 
-            className="w-2 h-2 sm:w-3 sm:h-3 flex-shrink-0"
+            className="w-2 h-2 rounded-full flex-shrink-0"
             style={{
-              backgroundColor: `hsl(120 ${Math.min(relevanceScore * 100, 60)}% 50%)`
+              backgroundColor: `hsl(${120 + (1 - relevanceScore) * 30} ${Math.min(relevanceScore * 80, 60)}% 50%)`
             }}
           />
           <span>{Math.round(relevanceScore * 100)}% match</span>
@@ -43,31 +43,31 @@ export const SearchResult = ({
         rel="noopener noreferrer"
         className="block"
       >
-        <h3 className="font-display text-xs sm:text-sm text-foreground group-hover:text-accent transition-colors sm:pr-28 leading-relaxed retro-glow break-words">
+        <h3 className="font-display text-lg sm:text-xl text-foreground group-hover:text-primary transition-colors sm:pr-28 leading-snug">
           {title}
         </h3>
         
         {subtitle && (
-          <p className="mt-2 font-body text-base sm:text-lg text-muted-foreground line-clamp-2 sm:line-clamp-1 uppercase">
+          <p className="mt-2 text-sm sm:text-base text-muted-foreground line-clamp-2">
             {subtitle}
           </p>
         )}
 
         {/* Topics from H4 headings */}
         {topics && topics.length > 0 && (
-          <div className="mt-3 sm:mt-4 flex flex-col gap-1.5 sm:gap-2">
+          <div className="mt-4 flex flex-wrap gap-2">
             {topics.slice(0, 4).map((topic, index) => (
               <span 
                 key={index}
-                className="inline-flex items-center gap-2 font-body text-base sm:text-lg text-muted-foreground"
+                className="inline-flex items-center gap-1.5 px-3 py-1 bg-secondary rounded-full text-xs sm:text-sm text-secondary-foreground"
               >
-                <Hash className="w-3 h-3 sm:w-4 sm:h-4 text-accent flex-shrink-0" />
-                <span className="break-words">{topic}</span>
+                <Hash className="w-3 h-3 text-primary" />
+                {topic}
               </span>
             ))}
             {topics.length > 4 && (
-              <span className="font-body text-sm sm:text-base text-muted-foreground/70 pl-5 sm:pl-6 uppercase">
-                +{topics.length - 4} more topics
+              <span className="px-3 py-1 text-xs sm:text-sm text-muted-foreground">
+                +{topics.length - 4} more
               </span>
             )}
           </div>
@@ -75,11 +75,11 @@ export const SearchResult = ({
 
         {/* Images */}
         {images && images.length > 0 && (
-          <div className="mt-3 sm:mt-4 flex gap-2 sm:gap-3 overflow-hidden">
+          <div className="mt-4 flex gap-2 sm:gap-3 overflow-hidden">
             {images.slice(0, 3).map((img, index) => (
               <div 
                 key={index}
-                className="relative w-14 h-14 sm:w-20 sm:h-20 overflow-hidden bg-muted flex-shrink-0 border-2 border-border"
+                className="relative w-16 h-16 sm:w-20 sm:h-20 overflow-hidden bg-muted rounded-lg flex-shrink-0"
               >
                 <img
                   src={img}
@@ -95,15 +95,15 @@ export const SearchResult = ({
           </div>
         )}
         
-        <div className="mt-3 sm:mt-4 flex flex-wrap items-center gap-3 sm:gap-6 font-body text-sm sm:text-lg text-muted-foreground uppercase">
+        <div className="mt-4 flex flex-wrap items-center gap-4 sm:gap-6 text-sm text-muted-foreground">
           {publishedDate && (
-            <span className="flex items-center gap-1.5 sm:gap-2">
-              <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span className="flex items-center gap-1.5">
+              <Calendar className="w-4 h-4" />
               {format(new Date(publishedDate), 'MMM d, yyyy')}
             </span>
           )}
-          <span className="flex items-center gap-1.5 sm:gap-2 text-accent sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-            <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
+          <span className="flex items-center gap-1.5 text-primary sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+            <ExternalLink className="w-4 h-4" />
             Read article
           </span>
         </div>

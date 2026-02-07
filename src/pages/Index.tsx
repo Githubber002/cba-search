@@ -93,6 +93,8 @@ const Index = () => {
                 { label: 'AI in retail', icon: '🤖' },
                 { label: 'cross-cultural marketing', icon: '🎯' },
                 { label: 'e-commerce Asia', icon: '🏮' },
+                { label: 'Shenzhen, China', icon: '🇨🇳' },
+                { label: 'Japan', icon: '🇯🇵' },
                 { label: 'localization', icon: '🌐' },
                 { label: 'social commerce', icon: '📱' },
                 { label: 'logistics China', icon: '📦' },

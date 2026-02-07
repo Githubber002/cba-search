@@ -98,7 +98,9 @@ const Index = () => {
                 { label: 'localization', icon: '🌐' },
                 { label: 'social commerce', icon: '📱' },
                 { label: 'logistics China', icon: '📦' },
-                { label: 'consumer trends', icon: '📈' }
+                { label: 'consumer trends', icon: '📈' },
+                { label: 'Thailand', icon: '🇹🇭' },
+                { label: 'South Korea', icon: '🇰🇷' }
               ].map(({ label, icon }) => (
                 <button
                   key={label}

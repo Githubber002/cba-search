@@ -3,6 +3,8 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Globe, Frown } from 'lucide-react';
 import { SearchBar } from '@/components/SearchBar';
 import { SearchResult } from '@/components/SearchResult';
+import { AISummary } from '@/components/AISummary';
+import { RelatedArticles } from '@/components/RelatedArticles';
 import { supabase } from '@/integrations/supabase/client';
 
 interface Article {
@@ -23,6 +25,8 @@ const SearchResults = () => {
   const query = searchParams.get('q') || '';
   
   const [results, setResults] = useState<Article[]>([]);
+  const [summary, setSummary] = useState<string | null>(null);
+  const [related, setRelated] = useState<Article[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
 
@@ -31,6 +35,8 @@ const SearchResults = () => {
     
     setIsLoading(true);
     setHasSearched(true);
+    setSummary(null);
+    setRelated([]);
 
     try {
       const { data, error } = await supabase.functions.invoke('semantic-search', {
@@ -40,9 +46,13 @@ const SearchResults = () => {
       if (error) throw error;
 
       setResults(data.results || []);
+      setSummary(data.summary || null);
+      setRelated(data.related || []);
     } catch (error) {
       console.error('Search error:', error);
       setResults([]);
+      setSummary(null);
+      setRelated([]);
     } finally {
       setIsLoading(false);
     }
@@ -119,6 +129,18 @@ const SearchResults = () => {
                   Found {results.length} result{results.length !== 1 ? 's' : ''} for "{query}"
                 </p>
               )}
+
+              {/* AI Summary */}
+              {isLoading ? (
+                <div className="mb-6">
+                  <AISummary summary="" isLoading />
+                </div>
+              ) : summary ? (
+                <div className="mb-6">
+                  <AISummary summary={summary} />
+                </div>
+              ) : null}
+
               <div className="space-y-3 sm:space-y-4 animate-stagger">
                 {results.map((article) => (
                   <SearchResult
@@ -134,6 +156,9 @@ const SearchResults = () => {
                   />
                 ))}
               </div>
+
+              {/* Related Articles */}
+              <RelatedArticles articles={related} />
             </>
           )}
         </main>

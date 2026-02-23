@@ -137,7 +137,10 @@ const SearchResults = () => {
                 </div>
               ) : summary ? (
                 <div className="mb-6">
-                  <AISummary summary={summary} />
+                  <AISummary 
+                    summary={summary} 
+                    sources={results.slice(0, 5).map(r => ({ title: r.title, url: r.url }))}
+                  />
                 </div>
               ) : null}
 

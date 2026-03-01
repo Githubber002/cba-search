@@ -80,6 +80,24 @@ const Index = () => {
             />
           </div>
 
+          {/* Archive banner */}
+          <a
+            href="https://www.crossborderalex.com/archive"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group mt-8 sm:mt-10 w-full max-w-2xl flex items-center justify-between gap-4 px-6 py-4 bg-card border border-border rounded-xl hover:border-primary/40 hover:shadow-soft transition-all animate-fade-in-up"
+            style={{ animationDelay: '350ms' }}
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">📬</span>
+              <div className="text-left">
+                <p className="text-sm font-medium text-foreground">Browse the full newsletter archive</p>
+                <p className="text-xs text-muted-foreground">Read all editions on crossborderalex.com</p>
+              </div>
+            </div>
+            <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all flex-shrink-0" />
+          </a>
+
           {/* Category chips */}
           <div className="mt-12 sm:mt-16 animate-fade-in-up px-2" style={{ animationDelay: '400ms' }}>
             <p className="text-sm text-muted-foreground mb-5 flex items-center justify-center gap-2">

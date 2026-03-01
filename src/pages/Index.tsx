@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Globe, Sparkles, Database, Plane, Ship, ArrowRight } from 'lucide-react';
+import bannerBg from '@/assets/banner-bg.png';
 import { SearchBar } from '@/components/SearchBar';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -115,23 +116,30 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Archive banner */}
-          <a
-            href="https://www.crossborderalex.com/archive"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group mt-12 sm:mt-16 w-full max-w-2xl flex items-center justify-between gap-4 px-6 py-4 bg-card border border-border rounded-xl hover:border-primary/40 hover:shadow-soft transition-all animate-fade-in-up"
+          {/* Archive banner with background image */}
+          <div
+            className="relative mt-12 sm:mt-16 w-full max-w-2xl rounded-xl overflow-hidden animate-fade-in-up"
             style={{ animationDelay: '450ms' }}
           >
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">📬</span>
-              <div className="text-left">
-                <p className="text-sm font-medium text-foreground">Browse the full newsletter archive</p>
-                <p className="text-xs text-muted-foreground">Read all editions on crossborderalex.com</p>
+            <img
+              src={bannerBg}
+              alt=""
+              className="w-full h-32 sm:h-40 object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-transparent" />
+            <a
+              href="https://www.crossborderalex.com/archive"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="absolute inset-0 flex items-center justify-between gap-4 px-6 group"
+            >
+              <div>
+                <p className="text-base sm:text-lg font-display font-medium text-white drop-shadow-md">Browse the full newsletter archive</p>
+                <p className="text-xs sm:text-sm text-white/80 mt-1">Read all editions on crossborderalex.com</p>
               </div>
-            </div>
-            <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all flex-shrink-0" />
-          </a>
+              <ArrowRight className="w-6 h-6 text-white/80 group-hover:text-white group-hover:translate-x-1 transition-all flex-shrink-0" />
+            </a>
+          </div>
         </main>
 
         {/* Footer */}

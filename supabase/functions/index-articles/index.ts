@@ -68,10 +68,10 @@ async function parseArticle(url: string): Promise<Article | null> {
     
     const html = await response.text();
 
-    // Extract title
+    // Extract original title (used as fallback)
     const titleMatch = html.match(/<h1[^>]*class="[^"]*post-title[^"]*"[^>]*>([^<]+)<\/h1>/i) ||
                       html.match(/<title>([^<|]+)/i);
-    const title = titleMatch ? titleMatch[1].trim() : 'Untitled';
+    const originalTitle = titleMatch ? titleMatch[1].trim() : 'Untitled';
 
     // Extract subtitle
     const subtitleMatch = html.match(/<h3[^>]*class="[^"]*subtitle[^"]*"[^>]*>([^<]+)<\/h3>/i);

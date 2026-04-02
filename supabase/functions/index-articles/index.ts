@@ -68,10 +68,10 @@ async function parseArticle(url: string): Promise<Article | null> {
     
     const html = await response.text();
 
-    // Extract title
+    // Extract original title (used as fallback)
     const titleMatch = html.match(/<h1[^>]*class="[^"]*post-title[^"]*"[^>]*>([^<]+)<\/h1>/i) ||
                       html.match(/<title>([^<|]+)/i);
-    const title = titleMatch ? titleMatch[1].trim() : 'Untitled';
+    const originalTitle = titleMatch ? titleMatch[1].trim() : 'Untitled';
 
     // Extract subtitle
     const subtitleMatch = html.match(/<h3[^>]*class="[^"]*subtitle[^"]*"[^>]*>([^<]+)<\/h3>/i);
@@ -129,6 +129,17 @@ async function parseArticle(url: string): Promise<Article | null> {
         .trim()
       )
       .filter(t => t.length > 3);
+
+    // Build a descriptive title from meaningful topics
+    const BOILERPLATE_TOPICS = ['discussion about this post', 'share', 'subscribe'];
+    const meaningfulTopics = topics.filter(
+      t => !BOILERPLATE_TOPICS.some(bp => t.toLowerCase().includes(bp))
+    );
+    
+    // Use up to 2 meaningful topics joined, or fall back to original title
+    const title = meaningfulTopics.length > 0
+      ? meaningfulTopics.slice(0, 2).join(' · ')
+      : originalTitle;
 
     // Extract images
     const imgMatches = html.matchAll(/<img[^>]*src="(https:\/\/substackcdn\.com\/image\/fetch\/[^"]+)"/gi);

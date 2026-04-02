@@ -130,6 +130,17 @@ async function parseArticle(url: string): Promise<Article | null> {
       )
       .filter(t => t.length > 3);
 
+    // Build a descriptive title from meaningful topics
+    const BOILERPLATE_TOPICS = ['discussion about this post', 'share', 'subscribe'];
+    const meaningfulTopics = topics.filter(
+      t => !BOILERPLATE_TOPICS.some(bp => t.toLowerCase().includes(bp))
+    );
+    
+    // Use up to 2 meaningful topics joined, or fall back to original title
+    const title = meaningfulTopics.length > 0
+      ? meaningfulTopics.slice(0, 2).join(' · ')
+      : originalTitle;
+
     // Extract images
     const imgMatches = html.matchAll(/<img[^>]*src="(https:\/\/substackcdn\.com\/image\/fetch\/[^"]+)"/gi);
     const images = [...new Set([...imgMatches].map(m => m[1]))]

@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           content: string
           created_at: string
+          fts: unknown
           id: string
           images: string[] | null
           published_date: string | null
@@ -30,6 +31,7 @@ export type Database = {
         Insert: {
           content: string
           created_at?: string
+          fts?: unknown
           id?: string
           images?: string[] | null
           published_date?: string | null
@@ -42,6 +44,7 @@ export type Database = {
         Update: {
           content?: string
           created_at?: string
+          fts?: unknown
           id?: string
           images?: string[] | null
           published_date?: string | null
@@ -58,7 +61,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      search_articles: {
+        Args: { max_results?: number; search_query: string }
+        Returns: {
+          content: string
+          id: string
+          images: string[]
+          published_date: string
+          rank: number
+          subtitle: string
+          title: string
+          topics: string[]
+          url: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

@@ -156,6 +156,7 @@ const SearchResults = () => {
                     topics={article.topics}
                     images={article.images}
                     relevanceScore={article.relevance}
+                    searchQuery={query}
                   />
                 ))}
               </div>

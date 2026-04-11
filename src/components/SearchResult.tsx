@@ -10,7 +10,15 @@ interface SearchResultProps {
   relevanceScore?: number;
   topics?: string[];
   images?: string[];
+  searchQuery?: string;
 }
+
+const highlightMatch = (text: string, query: string): boolean => {
+  if (!query) return false;
+  const words = query.toLowerCase().split(/\s+/).filter(w => w.length >= 3);
+  const lowerText = text.toLowerCase();
+  return words.some(word => lowerText.includes(word));
+};
 
 export const SearchResult = ({
   title,
@@ -20,8 +28,12 @@ export const SearchResult = ({
   publishedDate,
   relevanceScore,
   topics,
-  images
+  images,
+  searchQuery
 }: SearchResultProps) => {
+  // Filter out generic "Discussion about this post" topic
+  const filteredTopics = topics?.filter(t => t.toLowerCase() !== 'discussion about this post') || [];
+
   return (
     <article className="group relative p-5 sm:p-6 bg-card rounded-xl border border-border transition-all duration-200 hover:shadow-soft hover:border-primary/30">
       {/* Relevance indicator */}
@@ -53,23 +65,33 @@ export const SearchResult = ({
           </p>
         )}
 
-        {/* Topics from H4 headings */}
-        {topics && topics.length > 0 && (
-          <div className="mt-4 flex flex-wrap gap-2">
-            {topics.slice(0, 4).map((topic, index) => (
-              <span 
-                key={index}
-                className="inline-flex items-center gap-1.5 px-3 py-1 bg-secondary rounded-full text-xs sm:text-sm text-secondary-foreground"
-              >
-                <Hash className="w-3 h-3 text-primary" />
-                {topic}
-              </span>
-            ))}
-            {topics.length > 4 && (
-              <span className="px-3 py-1 text-xs sm:text-sm text-muted-foreground">
-                +{topics.length - 4} more
-              </span>
-            )}
+        {/* Topics as scannable list with search highlighting */}
+        {filteredTopics.length > 0 && (
+          <div className="mt-3 space-y-1">
+            <span className="text-xs uppercase tracking-wider text-muted-foreground/70">In this edition:</span>
+            <ul className="space-y-0.5">
+              {filteredTopics.slice(0, 8).map((topic, index) => {
+                const isMatch = searchQuery ? highlightMatch(topic, searchQuery) : false;
+                return (
+                  <li 
+                    key={index}
+                    className={`flex items-start gap-2 text-sm leading-snug py-0.5 ${
+                      isMatch 
+                        ? 'text-primary font-medium' 
+                        : 'text-muted-foreground'
+                    }`}
+                  >
+                    <Hash className={`w-3 h-3 mt-0.5 flex-shrink-0 ${isMatch ? 'text-primary' : 'text-muted-foreground/50'}`} />
+                    <span>{topic}</span>
+                  </li>
+                );
+              })}
+              {filteredTopics.length > 8 && (
+                <li className="text-xs text-muted-foreground/60 pl-5">
+                  +{filteredTopics.length - 8} more topics
+                </li>
+              )}
+            </ul>
           </div>
         )}
 

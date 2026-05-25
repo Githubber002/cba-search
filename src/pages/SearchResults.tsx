@@ -148,7 +148,7 @@ const SearchResults = () => {
                     key={article.id}
                     title={article.title}
                     subtitle={article.subtitle || undefined}
-                    snippet={createSnippet(article.content)}
+                    snippet={article.content}
                     url={article.url}
                     publishedDate={article.published_date || undefined}
                     topics={article.topics}

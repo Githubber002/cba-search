@@ -106,11 +106,18 @@ export const SearchResult = ({
           {title}
         </h3>
         
-        {subtitle && (
-          <p className="mt-2 text-sm sm:text-base text-muted-foreground line-clamp-2">
-            {subtitle}
-          </p>
-        )}
+        {/* Keyword-context excerpt from the edition body */}
+        {searchQuery && snippet && (() => {
+          const { text, matched } = buildExcerpt(snippet, searchQuery);
+          if (!text) return null;
+          return (
+            <div className="mt-3">
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {renderHighlighted(text, searchQuery)}
+              </p>
+            </div>
+          );
+        })()}
 
         {/* Topics as scannable list with search highlighting */}
         {filteredTopics.length > 0 && (
@@ -141,23 +148,6 @@ export const SearchResult = ({
             </ul>
           </div>
         )}
-
-        {/* Keyword-context excerpt from the edition body */}
-        {searchQuery && snippet && (() => {
-          const { text, matched } = buildExcerpt(snippet, searchQuery);
-          if (!text) return null;
-          return (
-            <div className="mt-3 pt-3 border-t border-border/50">
-              <span className="text-xs uppercase tracking-wider text-muted-foreground/70">
-                {matched ? 'Matching excerpt:' : 'Preview:'}
-              </span>
-              <p className="mt-1 text-sm text-muted-foreground leading-relaxed">
-                {renderHighlighted(text, searchQuery)}
-              </p>
-            </div>
-          );
-        })()}
-
 
         {/* Images */}
         {images && images.length > 0 && (

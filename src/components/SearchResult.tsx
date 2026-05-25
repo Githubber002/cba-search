@@ -13,11 +13,58 @@ interface SearchResultProps {
   searchQuery?: string;
 }
 
+const getQueryWords = (query: string): string[] =>
+  query.toLowerCase().split(/\s+/).filter(w => w.length >= 3);
+
 const highlightMatch = (text: string, query: string): boolean => {
   if (!query) return false;
-  const words = query.toLowerCase().split(/\s+/).filter(w => w.length >= 3);
   const lowerText = text.toLowerCase();
-  return words.some(word => lowerText.includes(word));
+  return getQueryWords(query).some(word => lowerText.includes(word));
+};
+
+const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/** Find a ~window-char excerpt around the first match of any query word in content. */
+const buildExcerpt = (content: string, query: string, window = 220): { text: string; matched: boolean } => {
+  if (!content) return { text: '', matched: false };
+  const clean = content.replace(/\s+/g, ' ').trim();
+  const words = getQueryWords(query);
+  const lower = clean.toLowerCase();
+  let idx = -1;
+  let matchLen = 0;
+  for (const w of words) {
+    const i = lower.indexOf(w);
+    if (i !== -1 && (idx === -1 || i < idx)) {
+      idx = i;
+      matchLen = w.length;
+    }
+  }
+  if (idx === -1) {
+    return { text: clean.slice(0, window).trim() + (clean.length > window ? '…' : ''), matched: false };
+  }
+  const half = Math.floor((window - matchLen) / 2);
+  const start = Math.max(0, idx - half);
+  const end = Math.min(clean.length, idx + matchLen + half);
+  let excerpt = clean.slice(start, end).trim();
+  if (start > 0) excerpt = '…' + excerpt;
+  if (end < clean.length) excerpt = excerpt + '…';
+  return { text: excerpt, matched: true };
+};
+
+const renderHighlighted = (text: string, query: string) => {
+  const words = getQueryWords(query);
+  if (words.length === 0) return text;
+  const pattern = new RegExp(`(${words.map(escapeRegExp).join('|')})`, 'gi');
+  const parts = text.split(pattern);
+  return parts.map((part, i) =>
+    pattern.test(part) ? (
+      <mark key={i} className="bg-accent/20 text-foreground font-semibold rounded px-0.5">
+        {part}
+      </mark>
+    ) : (
+      <span key={i}>{part}</span>
+    )
+  );
 };
 
 export const SearchResult = ({

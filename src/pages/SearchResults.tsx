@@ -68,10 +68,8 @@ const SearchResults = () => {
     navigate(`/search?q=${encodeURIComponent(newQuery)}`);
   };
 
-  const createSnippet = (content: string, maxLength: number = 250): string => {
-    if (content.length <= maxLength) return content;
-    return content.slice(0, maxLength).trim() + '...';
-  };
+  // Pass full content; SearchResult builds a keyword-context window from it.
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -150,7 +148,7 @@ const SearchResults = () => {
                     key={article.id}
                     title={article.title}
                     subtitle={article.subtitle || undefined}
-                    snippet={createSnippet(article.content)}
+                    snippet={article.content}
                     url={article.url}
                     publishedDate={article.published_date || undefined}
                     topics={article.topics}

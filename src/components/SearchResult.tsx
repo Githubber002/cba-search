@@ -25,7 +25,7 @@ const highlightMatch = (text: string, query: string): boolean => {
 const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 /** Find a ~window-char excerpt around the first match of any query word in content. */
-const buildExcerpt = (content: string, query: string, window = 220): { text: string; matched: boolean } => {
+const buildExcerpt = (content: string, query: string, window = 320): { text: string; matched: boolean } => {
   if (!content) return { text: '', matched: false };
   const clean = content.replace(/\s+/g, ' ').trim();
   const words = getQueryWords(query);

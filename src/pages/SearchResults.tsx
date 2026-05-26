@@ -29,6 +29,28 @@ const SearchResults = () => {
   const [related, setRelated] = useState<Article[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const [dateFilter, setDateFilter] = useState<'all' | '7d' | '30d' | '90d' | '1y'>('all');
+  const [sortOrder, setSortOrder] = useState<'relevance' | 'newest' | 'oldest'>('relevance');
+
+  const filterByDate = (articles: Article[]) => {
+    if (dateFilter === 'all') return articles;
+    const days = { '7d': 7, '30d': 30, '90d': 90, '1y': 365 }[dateFilter];
+    const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
+    return articles.filter(a => a.published_date && new Date(a.published_date).getTime() >= cutoff);
+  };
+
+  const sortResults = (articles: Article[]) => {
+    if (sortOrder === 'relevance') return articles;
+    const sorted = [...articles];
+    sorted.sort((a, b) => {
+      const da = a.published_date ? new Date(a.published_date).getTime() : 0;
+      const db = b.published_date ? new Date(b.published_date).getTime() : 0;
+      return sortOrder === 'newest' ? db - da : da - db;
+    });
+    return sorted;
+  };
+
+  const visibleResults = sortResults(filterByDate(results));
 
   const performSearch = async (searchQuery: string) => {
     if (!searchQuery.trim()) return;
@@ -123,9 +145,35 @@ const SearchResults = () => {
           ) : (
             <>
               {results.length > 0 && (
-                <p className="font-body text-sm sm:text-lg text-muted-foreground mb-4 sm:mb-6 uppercase">
-                  Found {results.length} result{results.length !== 1 ? 's' : ''} for "{query}"
-                </p>
+                <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <p className="font-body text-sm sm:text-lg text-muted-foreground uppercase">
+                    {visibleResults.length} of {results.length} result{results.length !== 1 ? 's' : ''} for "{query}"
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <select
+                      value={dateFilter}
+                      onChange={(e) => setDateFilter(e.target.value as typeof dateFilter)}
+                      className="bg-card border border-border rounded-full px-3 py-1.5 text-xs sm:text-sm text-foreground hover:border-primary/30 focus:border-primary outline-none transition-colors"
+                      aria-label="Filter by date"
+                    >
+                      <option value="all">All time</option>
+                      <option value="7d">Last 7 days</option>
+                      <option value="30d">Last 30 days</option>
+                      <option value="90d">Last 90 days</option>
+                      <option value="1y">Last year</option>
+                    </select>
+                    <select
+                      value={sortOrder}
+                      onChange={(e) => setSortOrder(e.target.value as typeof sortOrder)}
+                      className="bg-card border border-border rounded-full px-3 py-1.5 text-xs sm:text-sm text-foreground hover:border-primary/30 focus:border-primary outline-none transition-colors"
+                      aria-label="Sort results"
+                    >
+                      <option value="relevance">Most relevant</option>
+                      <option value="newest">Newest first</option>
+                      <option value="oldest">Oldest first</option>
+                    </select>
+                  </div>
+                </div>
               )}
 
               {/* AI Summary */}
@@ -142,8 +190,14 @@ const SearchResults = () => {
                 </div>
               ) : null}
 
+              {visibleResults.length === 0 && results.length > 0 && (
+                <p className="font-body text-sm text-muted-foreground py-6 text-center">
+                  No results match the selected date filter.
+                </p>
+              )}
+
               <div className="space-y-3 sm:space-y-4 animate-stagger">
-                {results.map((article) => (
+                {visibleResults.map((article) => (
                   <SearchResult
                     key={article.id}
                     title={article.title}

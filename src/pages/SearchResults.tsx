@@ -29,6 +29,28 @@ const SearchResults = () => {
   const [related, setRelated] = useState<Article[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const [dateFilter, setDateFilter] = useState<'all' | '7d' | '30d' | '90d' | '1y'>('all');
+  const [sortOrder, setSortOrder] = useState<'relevance' | 'newest' | 'oldest'>('relevance');
+
+  const filterByDate = (articles: Article[]) => {
+    if (dateFilter === 'all') return articles;
+    const days = { '7d': 7, '30d': 30, '90d': 90, '1y': 365 }[dateFilter];
+    const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
+    return articles.filter(a => a.published_date && new Date(a.published_date).getTime() >= cutoff);
+  };
+
+  const sortResults = (articles: Article[]) => {
+    if (sortOrder === 'relevance') return articles;
+    const sorted = [...articles];
+    sorted.sort((a, b) => {
+      const da = a.published_date ? new Date(a.published_date).getTime() : 0;
+      const db = b.published_date ? new Date(b.published_date).getTime() : 0;
+      return sortOrder === 'newest' ? db - da : da - db;
+    });
+    return sorted;
+  };
+
+  const visibleResults = sortResults(filterByDate(results));
 
   const performSearch = async (searchQuery: string) => {
     if (!searchQuery.trim()) return;

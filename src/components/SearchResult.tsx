@@ -166,21 +166,47 @@ export const SearchResult = ({
         {/* Topics as scannable list with search highlighting */}
         {filteredTopics.length > 0 && (
           <div className="mt-3 space-y-1">
-            <span className="text-xs uppercase tracking-wider text-muted-foreground/70">In this edition:</span>
+            <span className="text-xs uppercase tracking-wider text-muted-foreground/70">In this edition (click a topic for details):</span>
             <ul className="space-y-0.5">
               {filteredTopics.slice(0, 8).map((topic, index) => {
                 const isMatch = searchQuery ? highlightMatch(topic, searchQuery) : false;
+                const isOpen = expandedTopics.has(index);
+                const excerpt = isOpen ? buildTopicExcerpt(topic) : '';
                 return (
-                  <li 
-                    key={index}
-                    className={`flex items-start gap-2 text-sm leading-snug py-0.5 ${
-                      isMatch 
-                        ? 'text-primary font-medium' 
-                        : 'text-muted-foreground'
-                    }`}
-                  >
-                    <Hash className={`w-3 h-3 mt-0.5 flex-shrink-0 ${isMatch ? 'text-primary' : 'text-muted-foreground/50'}`} />
-                    <span>{topic}</span>
+                  <li key={index} className="py-0.5">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        toggleTopic(index);
+                      }}
+                      className={`flex items-start gap-2 text-sm leading-snug text-left w-full rounded hover:bg-muted/40 px-1 -mx-1 transition-colors ${
+                        isMatch ? 'text-primary font-medium' : 'text-muted-foreground'
+                      }`}
+                      aria-expanded={isOpen}
+                    >
+                      {isOpen ? (
+                        <ChevronDown className={`w-3 h-3 mt-1 flex-shrink-0 ${isMatch ? 'text-primary' : 'text-muted-foreground/50'}`} />
+                      ) : (
+                        <ChevronRight className={`w-3 h-3 mt-1 flex-shrink-0 ${isMatch ? 'text-primary' : 'text-muted-foreground/50'}`} />
+                      )}
+                      <Hash className={`w-3 h-3 mt-1 flex-shrink-0 ${isMatch ? 'text-primary' : 'text-muted-foreground/50'}`} />
+                      <span className="flex-1">{topic}</span>
+                    </button>
+                    {isOpen && (
+                      <div className="mt-1 ml-7 pl-3 border-l-2 border-primary/20">
+                        {excerpt ? (
+                          <p className="text-sm text-foreground/80 leading-relaxed py-1">
+                            {searchQuery ? renderHighlighted(excerpt, searchQuery) : excerpt}
+                          </p>
+                        ) : (
+                          <p className="text-xs text-muted-foreground/70 italic py-1">
+                            No detailed excerpt found for this topic in the edition.
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </li>
                 );
               })}

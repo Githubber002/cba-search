@@ -79,8 +79,51 @@ export const SearchResult = ({
   images,
   searchQuery
 }: SearchResultProps) => {
+  const [expandedTopics, setExpandedTopics] = useState<Set<number>>(new Set());
+
   // Filter out generic "Discussion about this post" topic
   const filteredTopics = topics?.filter(t => t.toLowerCase() !== 'discussion about this post') || [];
+
+  const toggleTopic = (i: number) => {
+    setExpandedTopics(prev => {
+      const next = new Set(prev);
+      next.has(i) ? next.delete(i) : next.add(i);
+      return next;
+    });
+  };
+
+  /** Build an excerpt around the topic's first occurrence in the content. */
+  const buildTopicExcerpt = (topic: string, window = 360): string => {
+    if (!snippet) return '';
+    const clean = snippet.replace(/\s+/g, ' ').trim();
+    const lower = clean.toLowerCase();
+    // Try the full topic, then progressively shorter prefixes / key words.
+    const candidates = [topic, ...topic.split(/[,:;–-]/).map(s => s.trim()).filter(Boolean)];
+    let idx = -1;
+    let matchLen = 0;
+    for (const c of candidates) {
+      const lc = c.toLowerCase();
+      if (lc.length < 4) continue;
+      const i = lower.indexOf(lc);
+      if (i !== -1) { idx = i; matchLen = lc.length; break; }
+    }
+    if (idx === -1) {
+      // Fallback: longest word from topic ≥5 chars
+      const words = topic.split(/\s+/).filter(w => w.length >= 5).sort((a, b) => b.length - a.length);
+      for (const w of words) {
+        const i = lower.indexOf(w.toLowerCase());
+        if (i !== -1) { idx = i; matchLen = w.length; break; }
+      }
+    }
+    if (idx === -1) return '';
+    const half = Math.floor((window - matchLen) / 2);
+    const start = Math.max(0, idx - half);
+    const end = Math.min(clean.length, idx + matchLen + half);
+    let excerpt = clean.slice(start, end).trim();
+    if (start > 0) excerpt = '…' + excerpt;
+    if (end < clean.length) excerpt = excerpt + '…';
+    return excerpt;
+  };
 
   return (
     <article className="group relative p-5 sm:p-6 bg-card rounded-xl border border-border transition-all duration-200 hover:shadow-soft hover:border-primary/30">

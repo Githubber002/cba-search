@@ -1,5 +1,6 @@
-import { Calendar, ExternalLink, Hash } from 'lucide-react';
+import { Calendar, ChevronDown, ChevronRight, ExternalLink, Hash } from 'lucide-react';
 import { format } from 'date-fns';
+import { useState } from 'react';
 
 interface SearchResultProps {
   title: string;
@@ -78,8 +79,51 @@ export const SearchResult = ({
   images,
   searchQuery
 }: SearchResultProps) => {
+  const [expandedTopics, setExpandedTopics] = useState<Set<number>>(new Set());
+
   // Filter out generic "Discussion about this post" topic
   const filteredTopics = topics?.filter(t => t.toLowerCase() !== 'discussion about this post') || [];
+
+  const toggleTopic = (i: number) => {
+    setExpandedTopics(prev => {
+      const next = new Set(prev);
+      next.has(i) ? next.delete(i) : next.add(i);
+      return next;
+    });
+  };
+
+  /** Build an excerpt around the topic's first occurrence in the content. */
+  const buildTopicExcerpt = (topic: string, window = 360): string => {
+    if (!snippet) return '';
+    const clean = snippet.replace(/\s+/g, ' ').trim();
+    const lower = clean.toLowerCase();
+    // Try the full topic, then progressively shorter prefixes / key words.
+    const candidates = [topic, ...topic.split(/[,:;–-]/).map(s => s.trim()).filter(Boolean)];
+    let idx = -1;
+    let matchLen = 0;
+    for (const c of candidates) {
+      const lc = c.toLowerCase();
+      if (lc.length < 4) continue;
+      const i = lower.indexOf(lc);
+      if (i !== -1) { idx = i; matchLen = lc.length; break; }
+    }
+    if (idx === -1) {
+      // Fallback: longest word from topic ≥5 chars
+      const words = topic.split(/\s+/).filter(w => w.length >= 5).sort((a, b) => b.length - a.length);
+      for (const w of words) {
+        const i = lower.indexOf(w.toLowerCase());
+        if (i !== -1) { idx = i; matchLen = w.length; break; }
+      }
+    }
+    if (idx === -1) return '';
+    const half = Math.floor((window - matchLen) / 2);
+    const start = Math.max(0, idx - half);
+    const end = Math.min(clean.length, idx + matchLen + half);
+    let excerpt = clean.slice(start, end).trim();
+    if (start > 0) excerpt = '…' + excerpt;
+    if (end < clean.length) excerpt = excerpt + '…';
+    return excerpt;
+  };
 
   return (
     <article className="group relative p-5 sm:p-6 bg-card rounded-xl border border-border transition-all duration-200 hover:shadow-soft hover:border-primary/30">
@@ -122,21 +166,47 @@ export const SearchResult = ({
         {/* Topics as scannable list with search highlighting */}
         {filteredTopics.length > 0 && (
           <div className="mt-3 space-y-1">
-            <span className="text-xs uppercase tracking-wider text-muted-foreground/70">In this edition:</span>
+            <span className="text-xs uppercase tracking-wider text-muted-foreground/70">In this edition (click a topic for details):</span>
             <ul className="space-y-0.5">
               {filteredTopics.slice(0, 8).map((topic, index) => {
                 const isMatch = searchQuery ? highlightMatch(topic, searchQuery) : false;
+                const isOpen = expandedTopics.has(index);
+                const excerpt = isOpen ? buildTopicExcerpt(topic) : '';
                 return (
-                  <li 
-                    key={index}
-                    className={`flex items-start gap-2 text-sm leading-snug py-0.5 ${
-                      isMatch 
-                        ? 'text-primary font-medium' 
-                        : 'text-muted-foreground'
-                    }`}
-                  >
-                    <Hash className={`w-3 h-3 mt-0.5 flex-shrink-0 ${isMatch ? 'text-primary' : 'text-muted-foreground/50'}`} />
-                    <span>{topic}</span>
+                  <li key={index} className="py-0.5">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        toggleTopic(index);
+                      }}
+                      className={`flex items-start gap-2 text-sm leading-snug text-left w-full rounded hover:bg-muted/40 px-1 -mx-1 transition-colors ${
+                        isMatch ? 'text-primary font-medium' : 'text-muted-foreground'
+                      }`}
+                      aria-expanded={isOpen}
+                    >
+                      {isOpen ? (
+                        <ChevronDown className={`w-3 h-3 mt-1 flex-shrink-0 ${isMatch ? 'text-primary' : 'text-muted-foreground/50'}`} />
+                      ) : (
+                        <ChevronRight className={`w-3 h-3 mt-1 flex-shrink-0 ${isMatch ? 'text-primary' : 'text-muted-foreground/50'}`} />
+                      )}
+                      <Hash className={`w-3 h-3 mt-1 flex-shrink-0 ${isMatch ? 'text-primary' : 'text-muted-foreground/50'}`} />
+                      <span className="flex-1">{topic}</span>
+                    </button>
+                    {isOpen && (
+                      <div className="mt-1 ml-7 pl-3 border-l-2 border-primary/20">
+                        {excerpt ? (
+                          <p className="text-sm text-foreground/80 leading-relaxed py-1">
+                            {searchQuery ? renderHighlighted(excerpt, searchQuery) : excerpt}
+                          </p>
+                        ) : (
+                          <p className="text-xs text-muted-foreground/70 italic py-1">
+                            No detailed excerpt found for this topic in the edition.
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </li>
                 );
               })}

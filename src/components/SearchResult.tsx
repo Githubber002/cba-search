@@ -1,5 +1,6 @@
-import { Calendar, ExternalLink, Hash } from 'lucide-react';
+import { Calendar, ChevronDown, ChevronRight, ExternalLink, Hash } from 'lucide-react';
 import { format } from 'date-fns';
+import { useState } from 'react';
 
 interface SearchResultProps {
   title: string;

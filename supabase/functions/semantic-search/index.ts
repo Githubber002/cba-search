@@ -206,11 +206,13 @@ Deno.serve(async (req) => {
 
       if (dbError) throw dbError;
       if (!articles || articles.length === 0) {
+        await logSearch(supabase, query, expandedQuery, directMatches.length, false, directMatches[0]?.id ?? null);
         return new Response(
           JSON.stringify({ success: true, results: directMatches, summary: null, related: [] }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
+
 
       const articleSummaries = articles.map((a: any, i: number) => {
         const topics = a.topics?.length > 0 ? ` [${a.topics.join(', ')}]` : '';

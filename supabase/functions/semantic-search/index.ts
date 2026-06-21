@@ -282,10 +282,12 @@ Deno.serve(async (req) => {
                   generateSummary(query, rankedResults, lovableApiKey),
                   findRelatedArticles(rankedResults, supabase)
                 ]);
+                await logSearch(supabase, query, expandedQuery, rankedResults.length, true, rankedResults[0]?.id ?? null);
                 return new Response(
                   JSON.stringify({ success: true, results: rankedResults, summary, related }),
                   { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
                 );
+
               }
             }
           }

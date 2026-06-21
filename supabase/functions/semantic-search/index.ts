@@ -7,6 +7,67 @@ const corsHeaders = {
 
 const LOVABLE_AI_URL = 'https://ai.gateway.lovable.dev/v1/chat/completions';
 
+// Synonym / acronym expansion for cross-border e-commerce jargon.
+// Keys & values are lowercase. Matches are whole-word, case-insensitive.
+const SYNONYMS: Record<string, string[]> = {
+  'tts': ['tiktok shop'],
+  'tiktok shop': ['tts'],
+  'cbec': ['cross-border ecommerce', 'cross border ecommerce'],
+  'dtc': ['d2c', 'direct to consumer'],
+  'd2c': ['dtc', 'direct to consumer'],
+  'sea': ['southeast asia', 'south-east asia'],
+  'mena': ['middle east'],
+  'kr': ['korea'],
+  'jp': ['japan'],
+  'cn': ['china'],
+  'roas': ['return on ad spend'],
+  'cac': ['customer acquisition cost'],
+  'ltv': ['lifetime value'],
+  'sku': ['product'],
+  'gmv': ['gross merchandise value'],
+  'ai': ['artificial intelligence', 'genai'],
+  'genai': ['ai', 'generative ai'],
+  'llm': ['large language model'],
+};
+
+function expandQuery(query: string): string {
+  const q = query.toLowerCase();
+  // If quoted phrase, don't expand
+  if (q.trim().startsWith('"') && q.trim().endsWith('"')) return query;
+
+  const additions = new Set<string>();
+  for (const [key, vals] of Object.entries(SYNONYMS)) {
+    const re = new RegExp(`\\b${key.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}\\b`, 'i');
+    if (re.test(q)) vals.forEach(v => additions.add(v));
+  }
+  if (additions.size === 0) return query;
+  // websearch_to_tsquery treats space-separated terms as AND, but quoted-or alternatives work via OR.
+  // Use OR keyword (websearch syntax supports OR).
+  return `${query} OR ${Array.from(additions).join(' OR ')}`;
+}
+
+async function logSearch(
+  supabase: any,
+  query: string,
+  normalized: string,
+  resultCount: number,
+  usedSemantic: boolean,
+  topResultId: string | null,
+) {
+  try {
+    await supabase.from('search_logs').insert({
+      query,
+      normalized_query: normalized,
+      result_count: resultCount,
+      used_semantic: usedSemantic,
+      top_result_id: topResultId,
+    });
+  } catch (e) {
+    console.error('Failed to log search:', e);
+  }
+}
+
+
 async function generateSummary(query: string, results: any[], lovableApiKey: string): Promise<string | null> {
   if (!lovableApiKey || results.length === 0) return null;
   
@@ -101,11 +162,12 @@ Deno.serve(async (req) => {
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    console.log(`Searching for: ${query}`);
+    const expandedQuery = expandQuery(query);
+    console.log(`Searching for: ${query} (expanded: ${expandedQuery})`);
 
     // STEP 1: Use Postgres full-text search (fast, indexed)
     const { data: ftsResults, error: ftsError } = await supabase
-      .rpc('search_articles', { search_query: query, max_results: 10 });
+      .rpc('search_articles', { search_query: expandedQuery, max_results: 10 });
 
     if (ftsError) {
       console.error('FTS error:', ftsError);
@@ -124,11 +186,13 @@ Deno.serve(async (req) => {
         generateSummary(query, directMatches, lovableApiKey || ''),
         findRelatedArticles(directMatches, supabase)
       ]);
+      await logSearch(supabase, query, expandedQuery, directMatches.length, false, directMatches[0]?.id ?? null);
       return new Response(
         JSON.stringify({ success: true, results: directMatches, summary, related }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
 
     // STEP 2: If FTS didn't find enough, use AI semantic search on titles+topics only (not full content)
     if (lovableApiKey) {
@@ -142,11 +206,13 @@ Deno.serve(async (req) => {
 
       if (dbError) throw dbError;
       if (!articles || articles.length === 0) {
+        await logSearch(supabase, query, expandedQuery, directMatches.length, false, directMatches[0]?.id ?? null);
         return new Response(
           JSON.stringify({ success: true, results: directMatches, summary: null, related: [] }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
+
 
       const articleSummaries = articles.map((a: any, i: number) => {
         const topics = a.topics?.length > 0 ? ` [${a.topics.join(', ')}]` : '';
@@ -216,10 +282,12 @@ Deno.serve(async (req) => {
                   generateSummary(query, rankedResults, lovableApiKey),
                   findRelatedArticles(rankedResults, supabase)
                 ]);
+                await logSearch(supabase, query, expandedQuery, rankedResults.length, true, rankedResults[0]?.id ?? null);
                 return new Response(
                   JSON.stringify({ success: true, results: rankedResults, summary, related }),
                   { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
                 );
+
               }
             }
           }
@@ -234,10 +302,12 @@ Deno.serve(async (req) => {
       generateSummary(query, directMatches, lovableApiKey || ''),
       findRelatedArticles(directMatches, supabase)
     ]);
+    await logSearch(supabase, query, expandedQuery, directMatches.length, false, directMatches[0]?.id ?? null);
     return new Response(
       JSON.stringify({ success: true, results: directMatches, summary, related }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
+
   } catch (error: unknown) {
     console.error('Search error:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';

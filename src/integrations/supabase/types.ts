@@ -56,6 +56,36 @@ export type Database = {
         }
         Relationships: []
       }
+      search_logs: {
+        Row: {
+          created_at: string
+          id: string
+          normalized_query: string | null
+          query: string
+          result_count: number
+          top_result_id: string | null
+          used_semantic: boolean
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          normalized_query?: string | null
+          query: string
+          result_count?: number
+          top_result_id?: string | null
+          used_semantic?: boolean
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          normalized_query?: string | null
+          query?: string
+          result_count?: number
+          top_result_id?: string | null
+          used_semantic?: boolean
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -75,6 +105,8 @@ export type Database = {
           url: string
         }[]
       }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
     }
     Enums: {
       [_ in never]: never

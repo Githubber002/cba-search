@@ -7,6 +7,67 @@ const corsHeaders = {
 
 const LOVABLE_AI_URL = 'https://ai.gateway.lovable.dev/v1/chat/completions';
 
+// Synonym / acronym expansion for cross-border e-commerce jargon.
+// Keys & values are lowercase. Matches are whole-word, case-insensitive.
+const SYNONYMS: Record<string, string[]> = {
+  'tts': ['tiktok shop'],
+  'tiktok shop': ['tts'],
+  'cbec': ['cross-border ecommerce', 'cross border ecommerce'],
+  'dtc': ['d2c', 'direct to consumer'],
+  'd2c': ['dtc', 'direct to consumer'],
+  'sea': ['southeast asia', 'south-east asia'],
+  'mena': ['middle east'],
+  'kr': ['korea'],
+  'jp': ['japan'],
+  'cn': ['china'],
+  'roas': ['return on ad spend'],
+  'cac': ['customer acquisition cost'],
+  'ltv': ['lifetime value'],
+  'sku': ['product'],
+  'gmv': ['gross merchandise value'],
+  'ai': ['artificial intelligence', 'genai'],
+  'genai': ['ai', 'generative ai'],
+  'llm': ['large language model'],
+};
+
+function expandQuery(query: string): string {
+  const q = query.toLowerCase();
+  // If quoted phrase, don't expand
+  if (q.trim().startsWith('"') && q.trim().endsWith('"')) return query;
+
+  const additions = new Set<string>();
+  for (const [key, vals] of Object.entries(SYNONYMS)) {
+    const re = new RegExp(`\\b${key.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}\\b`, 'i');
+    if (re.test(q)) vals.forEach(v => additions.add(v));
+  }
+  if (additions.size === 0) return query;
+  // websearch_to_tsquery treats space-separated terms as AND, but quoted-or alternatives work via OR.
+  // Use OR keyword (websearch syntax supports OR).
+  return `${query} OR ${Array.from(additions).join(' OR ')}`;
+}
+
+async function logSearch(
+  supabase: any,
+  query: string,
+  normalized: string,
+  resultCount: number,
+  usedSemantic: boolean,
+  topResultId: string | null,
+) {
+  try {
+    await supabase.from('search_logs').insert({
+      query,
+      normalized_query: normalized,
+      result_count: resultCount,
+      used_semantic: usedSemantic,
+      top_result_id: topResultId,
+    });
+  } catch (e) {
+    console.error('Failed to log search:', e);
+  }
+}
+
+
 async function generateSummary(query: string, results: any[], lovableApiKey: string): Promise<string | null> {
   if (!lovableApiKey || results.length === 0) return null;
   

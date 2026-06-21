@@ -162,11 +162,12 @@ Deno.serve(async (req) => {
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    console.log(`Searching for: ${query}`);
+    const expandedQuery = expandQuery(query);
+    console.log(`Searching for: ${query} (expanded: ${expandedQuery})`);
 
     // STEP 1: Use Postgres full-text search (fast, indexed)
     const { data: ftsResults, error: ftsError } = await supabase
-      .rpc('search_articles', { search_query: query, max_results: 10 });
+      .rpc('search_articles', { search_query: expandedQuery, max_results: 10 });
 
     if (ftsError) {
       console.error('FTS error:', ftsError);
@@ -185,11 +186,13 @@ Deno.serve(async (req) => {
         generateSummary(query, directMatches, lovableApiKey || ''),
         findRelatedArticles(directMatches, supabase)
       ]);
+      await logSearch(supabase, query, expandedQuery, directMatches.length, false, directMatches[0]?.id ?? null);
       return new Response(
         JSON.stringify({ success: true, results: directMatches, summary, related }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
 
     // STEP 2: If FTS didn't find enough, use AI semantic search on titles+topics only (not full content)
     if (lovableApiKey) {

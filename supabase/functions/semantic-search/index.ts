@@ -302,10 +302,12 @@ Deno.serve(async (req) => {
       generateSummary(query, directMatches, lovableApiKey || ''),
       findRelatedArticles(directMatches, supabase)
     ]);
+    await logSearch(supabase, query, expandedQuery, directMatches.length, false, directMatches[0]?.id ?? null);
     return new Response(
       JSON.stringify({ success: true, results: directMatches, summary, related }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
+
   } catch (error: unknown) {
     console.error('Search error:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';

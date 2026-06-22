@@ -145,15 +145,18 @@ const Index = () => {
         {/* Reader profile / "what jobs fit Alex" — synthesized from the indexed archive */}
         <section className="mb-16 sm:mb-24 animate-fade-in-up" style={{ animationDelay: '500ms' }}>
           <div className="bg-card border border-border rounded-2xl shadow-soft p-6 sm:p-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent/10 text-accent rounded-full text-xs font-medium mb-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent/10 text-accent rounded-full text-xs font-medium mb-2">
               <Sparkles className="w-3 h-3" />
               Synthesized from {articleCount} editions
             </div>
+            <p className="text-xs text-muted-foreground mb-4">
+              AI-analyzed by reading every edition in the archive.
+            </p>
             <h2 className="font-display text-2xl sm:text-3xl text-foreground mb-3">
-              What this archive says about Alex
+              What this archive says about Alex Baar
             </h2>
             <p className="text-muted-foreground leading-relaxed mb-6">
-              After 144 editions, the archive reads as distinctly global-first and Asia-deep — China,
+              After {articleCount} editions, the archive reads as distinctly global-first and Asia-deep — China,
               Korea, Japan, SEA, India, MENA and LATAM all show up weekly. Cross-functional by instinct:
               performance marketing, SEO, UX, product discovery, retail, payments and AI tooling sit
               side by side. The tone is opinionated and practical — issues get framed, judged and

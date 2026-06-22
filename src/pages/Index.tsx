@@ -163,7 +163,7 @@ const Index = () => {
             <h3 className="font-display text-lg text-foreground mb-3">Roles that fit that profile</h3>
             <ul className="grid sm:grid-cols-2 gap-3 mb-6">
               {[
-                { t: 'Head of International / Global Growth', d: 'E-commerce or marketplace brands expanding into APAC, MENA, LATAM.' },
+                { t: 'International Growth Lead / Strategic Operator', d: 'Hands-on in APAC, MENA, LATAM — but only when the org fits. Otherwise too political for your taste.' },
                 { t: 'Cross-border / Marketplace Strategy Lead', d: 'Amazon, Shopify, TikTok Shop, Mercado Libre — platform or brand side.' },
                 { t: 'Director of Digital / Omnichannel', d: 'Retailers where online ↔ offline really matters.' },
                 { t: 'Principal PM, International', name: 'Principal Product Manager, International', d: 'Discovery vocabulary plus global market sense — a rare combo.' },
@@ -181,7 +181,7 @@ const Index = () => {
             </ul>
 
             <p className="text-sm text-muted-foreground italic border-l-2 border-primary pl-4">
-              The honest read: less specialist, more <span className="text-foreground font-medium">connective operator</span> —
+              The honest read: a <span className="text-foreground font-medium">generalist</span> and <span className="text-foreground font-medium">connective operator</span> —
               someone who belongs between regions, between functions, and between AI and humans.
               A bug in single-market IC roles; a superpower in international scale-ups, marketplaces
               and advisory.

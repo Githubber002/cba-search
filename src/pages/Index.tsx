@@ -170,7 +170,7 @@ const Index = () => {
                 { t: 'International Growth Lead / Strategic Operator', d: 'Hands-on in APAC, MENA, LATAM — effective in orgs with low politics and high autonomy.' },
                 { t: 'Cross-border / Marketplace Strategy Lead', d: 'Amazon, Shopify, TikTok Shop, Mercado Libre — platform or brand side.' },
                 { t: 'Director of Digital / Omnichannel', d: 'Retailers where online ↔ offline really matters.' },
-                { t: 'Principal PM, International', name: 'Principal Product Manager, International', d: 'Discovery vocabulary plus global market sense — a rare combo.' },
+                { t: 'Principal Product Manager, International', d: 'Discovery vocabulary plus global market sense — a rare combo.' },
                 { t: 'AI-for-Commerce Advisor / Fractional CMO', d: 'The weekly synthesis reads like client-grade strategy work.' },
                 { t: 'Editor / Analyst at a Commerce Research Outlet', d: 'The archive functions as a research portfolio.' },
               ].map((r) => (

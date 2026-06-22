@@ -142,6 +142,53 @@ const Index = () => {
           </div>
         </main>
 
+        {/* Reader profile / "what jobs fit Alex" — synthesized from the indexed archive */}
+        <section className="mb-16 sm:mb-24 animate-fade-in-up" style={{ animationDelay: '500ms' }}>
+          <div className="bg-card border border-border rounded-2xl shadow-soft p-6 sm:p-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-accent/10 text-accent rounded-full text-xs font-medium mb-4">
+              <Sparkles className="w-3 h-3" />
+              Synthesized from {articleCount} editions
+            </div>
+            <h2 className="font-display text-2xl sm:text-3xl text-foreground mb-3">
+              What this archive says about Alex
+            </h2>
+            <p className="text-muted-foreground leading-relaxed mb-6">
+              144 editions in, a pattern emerges. Global-first and Asia-deep — China, Korea, Japan,
+              SEA, India, MENA, LATAM all show up weekly. Cross-functional by instinct: performance
+              marketing, SEO, UX, product discovery, retail, payments and AI tooling sit side by
+              side. Opinionated and practical — things get framed, judged, prescribed. AI-pragmatic,
+              not AI-hype. And culture is treated as a first-class variable in commerce.
+            </p>
+
+            <h3 className="font-display text-lg text-foreground mb-3">Roles that fit that profile</h3>
+            <ul className="grid sm:grid-cols-2 gap-3 mb-6">
+              {[
+                { t: 'Head of International / Global Growth', d: 'E-commerce or marketplace brands expanding into APAC, MENA, LATAM.' },
+                { t: 'Cross-border / Marketplace Strategy Lead', d: 'Amazon, Shopify, TikTok Shop, Mercado Libre — platform or brand side.' },
+                { t: 'Director of Digital / Omnichannel', d: 'Retailers where online ↔ offline really matters.' },
+                { t: 'Principal PM, International', name: 'Principal Product Manager, International', d: 'Discovery vocabulary plus global market sense — a rare combo.' },
+                { t: 'AI-for-Commerce advisor / Fractional CMO', d: 'The weekly synthesis is already the work clients pay for.' },
+                { t: 'Editor / Analyst at a commerce research outlet', d: 'The newsletter is the audition tape.' },
+              ].map((r) => (
+                <li key={r.t} className="flex gap-3 p-4 bg-background rounded-lg border border-border">
+                  <ArrowRight className="w-4 h-4 text-primary flex-shrink-0 mt-1" />
+                  <div>
+                    <p className="font-medium text-foreground text-sm">{r.t}</p>
+                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{r.d}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+
+            <p className="text-sm text-muted-foreground italic border-l-2 border-primary pl-4">
+              The honest read: less specialist, more <span className="text-foreground font-medium">connective operator</span> —
+              someone who belongs between regions, between functions, and between AI and humans.
+              A bug in single-market IC roles; a superpower in international scale-ups, marketplaces
+              and advisory.
+            </p>
+          </div>
+        </section>
+
         {/* Footer */}
         <footer className="text-center text-sm text-muted-foreground flex flex-col items-center gap-3">
           <div className="flex items-center gap-3 opacity-60">

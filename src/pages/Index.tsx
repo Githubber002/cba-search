@@ -153,22 +153,23 @@ const Index = () => {
               What this archive says about Alex
             </h2>
             <p className="text-muted-foreground leading-relaxed mb-6">
-              144 editions in, a pattern emerges. Global-first and Asia-deep — China, Korea, Japan,
-              SEA, India, MENA, LATAM all show up weekly. Cross-functional by instinct: performance
-              marketing, SEO, UX, product discovery, retail, payments and AI tooling sit side by
-              side. Opinionated and practical — things get framed, judged, prescribed. AI-pragmatic,
-              not AI-hype. And culture is treated as a first-class variable in commerce.
+              After 144 editions, the archive reads as distinctly global-first and Asia-deep — China,
+              Korea, Japan, SEA, India, MENA and LATAM all show up weekly. Cross-functional by instinct:
+              performance marketing, SEO, UX, product discovery, retail, payments and AI tooling sit
+              side by side. The tone is opinionated and practical — issues get framed, judged and
+              prescribed rather than merely reported. AI is treated as a tool, not a trend. And culture
+              is handled as a first-class variable in commerce, not an afterthought.
             </p>
 
             <h3 className="font-display text-lg text-foreground mb-3">Roles that fit that profile</h3>
             <ul className="grid sm:grid-cols-2 gap-3 mb-6">
               {[
-                { t: 'International Growth Lead / Strategic Operator', d: 'Hands-on in APAC, MENA, LATAM — but only when the org fits. Otherwise too political for your taste.' },
+                { t: 'International Growth Lead / Strategic Operator', d: 'Hands-on in APAC, MENA, LATAM — effective in orgs with low politics and high autonomy.' },
                 { t: 'Cross-border / Marketplace Strategy Lead', d: 'Amazon, Shopify, TikTok Shop, Mercado Libre — platform or brand side.' },
                 { t: 'Director of Digital / Omnichannel', d: 'Retailers where online ↔ offline really matters.' },
                 { t: 'Principal PM, International', name: 'Principal Product Manager, International', d: 'Discovery vocabulary plus global market sense — a rare combo.' },
-                { t: 'AI-for-Commerce advisor / Fractional CMO', d: 'The weekly synthesis is already the work clients pay for.' },
-                { t: 'Editor / Analyst at a commerce research outlet', d: 'The newsletter is the audition tape.' },
+                { t: 'AI-for-Commerce Advisor / Fractional CMO', d: 'The weekly synthesis reads like client-grade strategy work.' },
+                { t: 'Editor / Analyst at a Commerce Research Outlet', d: 'The archive functions as a research portfolio.' },
               ].map((r) => (
                 <li key={r.t} className="flex gap-3 p-4 bg-background rounded-lg border border-border">
                   <ArrowRight className="w-4 h-4 text-primary flex-shrink-0 mt-1" />
@@ -182,9 +183,9 @@ const Index = () => {
 
             <p className="text-sm text-muted-foreground italic border-l-2 border-primary pl-4">
               The honest read: a <span className="text-foreground font-medium">generalist</span> and <span className="text-foreground font-medium">connective operator</span> —
-              someone who belongs between regions, between functions, and between AI and humans.
-              A bug in single-market IC roles; a superpower in international scale-ups, marketplaces
-              and advisory.
+              someone who naturally sits between regions, between functions, and between AI and humans.
+              A poor fit for single-market IC roles; a strong match for international scale-ups,
+              marketplaces and advisory work.
             </p>
           </div>
         </section>

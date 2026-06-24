@@ -179,8 +179,9 @@ const Index = () => {
                 { t: 'Principal Product Manager, International', d: 'Discovery vocabulary plus global market sense — a rare combo.' },
                 { t: 'AI-for-Commerce Advisor / Fractional CMO', d: 'The weekly synthesis reads like client-grade strategy work.' },
                 { t: 'Subject Matter Expert — Cross-border Commerce', d: 'Go-to internal expert for global e-commerce, marketplaces and localization decisions.' },
-                { t: 'Country / Regional Expert — APAC, MENA, LATAM', d: 'Deep on-the-ground reading of China, Korea, Japan, SEA, India, Gulf and LATAM markets.' },
-                { t: 'Business Expert / Commercial Strategist', d: 'Translates market signals into pricing, channel mix and go-to-market calls.' },
+                { t: 'Country / Regional Expert — APAC, MENA, LATAM & Europe', d: 'Deep on-the-ground reading of China, Korea, Japan, SEA, India, Gulf, LATAM and European markets.' },
+                { t: 'Inbound-to-Europe Expansion Lead', d: 'Helping non-EU brands, marketplaces and trade bodies enter and scale across European markets.' },
+                { t: 'Business Expert / Commercial Strategist', d: 'Translates market signals into pricing, channel mix and go-to-market calls. Open to relocating.' },
                 { t: 'Editor / Analyst at a Commerce Research Outlet', d: 'The archive functions as a research portfolio.' },
               ].map((r) => (
                 <li key={r.t} className="flex gap-3 p-4 bg-background rounded-lg border border-border">

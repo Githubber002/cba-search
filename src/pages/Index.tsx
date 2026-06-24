@@ -157,12 +157,18 @@ const Index = () => {
             </h2>
             <p className="text-muted-foreground leading-relaxed mb-6">
               After {articleCount} editions, the archive reads as distinctly global-first and Asia-deep — China,
-              Korea, Japan, SEA, India, MENA and LATAM all show up weekly. Cross-functional by instinct:
-              performance marketing, SEO, UX, product discovery, retail, payments and AI tooling sit
-              side by side. The tone is opinionated and practical — issues get framed, judged and
-              prescribed rather than merely reported. AI is treated as a tool, not a trend. And culture
-              is handled as a first-class variable in commerce, not an afterthought.
+              Korea, Japan, SEA, India, MENA and LATAM all show up weekly — paired with a strong
+              <span className="text-foreground font-medium"> European commerce</span> backbone.
+              That makes the profile especially valuable as an <span className="text-foreground font-medium">inbound-to-Europe</span> bridge:
+              helping brands and governments outside the EU understand how to sell into, partner
+              with, or expand into European markets. Cross-functional by instinct: performance
+              marketing, SEO, UX, product discovery, retail, payments and AI tooling sit side by
+              side. The tone is opinionated and practical — issues get framed, judged and
+              prescribed rather than merely reported. AI is treated as a tool, not a trend. And
+              culture is handled as a first-class variable in commerce, not an afterthought.
+              Flexible on location and <span className="text-foreground font-medium">open to relocating abroad</span> for the right mandate.
             </p>
+
 
             <h3 className="font-display text-lg text-foreground mb-3">Roles that fit that profile</h3>
             <ul className="grid sm:grid-cols-2 gap-3 mb-6">
@@ -173,8 +179,9 @@ const Index = () => {
                 { t: 'Principal Product Manager, International', d: 'Discovery vocabulary plus global market sense — a rare combo.' },
                 { t: 'AI-for-Commerce Advisor / Fractional CMO', d: 'The weekly synthesis reads like client-grade strategy work.' },
                 { t: 'Subject Matter Expert — Cross-border Commerce', d: 'Go-to internal expert for global e-commerce, marketplaces and localization decisions.' },
-                { t: 'Country / Regional Expert — APAC, MENA, LATAM', d: 'Deep on-the-ground reading of China, Korea, Japan, SEA, India, Gulf and LATAM markets.' },
-                { t: 'Business Expert / Commercial Strategist', d: 'Translates market signals into pricing, channel mix and go-to-market calls.' },
+                { t: 'Country / Regional Expert — APAC, MENA, LATAM & Europe', d: 'Deep on-the-ground reading of China, Korea, Japan, SEA, India, Gulf, LATAM and European markets.' },
+                { t: 'Inbound-to-Europe Expansion Lead', d: 'Helping non-EU brands, marketplaces and trade bodies enter and scale across European markets.' },
+                { t: 'Business Expert / Commercial Strategist', d: 'Translates market signals into pricing, channel mix and go-to-market calls. Open to relocating.' },
                 { t: 'Editor / Analyst at a Commerce Research Outlet', d: 'The archive functions as a research portfolio.' },
               ].map((r) => (
                 <li key={r.t} className="flex gap-3 p-4 bg-background rounded-lg border border-border">

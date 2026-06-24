@@ -172,6 +172,9 @@ const Index = () => {
                 { t: 'Director of Digital / Omnichannel', d: 'Retailers where online ↔ offline really matters.' },
                 { t: 'Principal Product Manager, International', d: 'Discovery vocabulary plus global market sense — a rare combo.' },
                 { t: 'AI-for-Commerce Advisor / Fractional CMO', d: 'The weekly synthesis reads like client-grade strategy work.' },
+                { t: 'Subject Matter Expert — Cross-border Commerce', d: 'Go-to internal expert for global e-commerce, marketplaces and localization decisions.' },
+                { t: 'Country / Regional Expert — APAC, MENA, LATAM', d: 'Deep on-the-ground reading of China, Korea, Japan, SEA, India, Gulf and LATAM markets.' },
+                { t: 'Business Expert / Commercial Strategist', d: 'Translates market signals into pricing, channel mix and go-to-market calls.' },
                 { t: 'Editor / Analyst at a Commerce Research Outlet', d: 'The archive functions as a research portfolio.' },
               ].map((r) => (
                 <li key={r.t} className="flex gap-3 p-4 bg-background rounded-lg border border-border">

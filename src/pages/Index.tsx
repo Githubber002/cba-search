@@ -17,7 +17,18 @@ const Index = () => {
         .select('*', { count: 'exact', head: true });
       setArticleCount(count || 0);
     };
+
     fetchArticleCount();
+    const interval = setInterval(fetchArticleCount, 10000);
+    const handleVisibility = () => {
+      if (!document.hidden) fetchArticleCount();
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
   }, []);
 
   const handleSearch = (query: string) => {

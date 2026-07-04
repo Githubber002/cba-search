@@ -6,6 +6,7 @@ import { SearchResult } from '@/components/SearchResult';
 import { AISummary } from '@/components/AISummary';
 import { RelatedArticles } from '@/components/RelatedArticles';
 import { supabase } from '@/integrations/supabase/client';
+import { cn } from '@/lib/utils';
 
 interface Article {
   id: string;

@@ -31,12 +31,26 @@ const SearchResults = () => {
   const [hasSearched, setHasSearched] = useState(false);
   const [dateFilter, setDateFilter] = useState<'all' | '7d' | '30d' | '90d' | '1y'>('all');
   const [sortOrder, setSortOrder] = useState<'relevance' | 'newest' | 'oldest'>('relevance');
+  const [activeTopics, setActiveTopics] = useState<string[]>([]);
+
+  // Reset topic filter when query changes
+  useEffect(() => {
+    setActiveTopics([]);
+  }, [query]);
 
   const filterByDate = (articles: Article[]) => {
     if (dateFilter === 'all') return articles;
     const days = { '7d': 7, '30d': 30, '90d': 90, '1y': 365 }[dateFilter];
     const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
     return articles.filter(a => a.published_date && new Date(a.published_date).getTime() >= cutoff);
+  };
+
+  const filterByTopics = (articles: Article[]) => {
+    if (activeTopics.length === 0) return articles;
+    const active = activeTopics.map(t => t.toLowerCase());
+    return articles.filter(a =>
+      (a.topics || []).some(t => active.includes(t.toLowerCase()))
+    );
   };
 
   const sortResults = (articles: Article[]) => {
@@ -50,7 +64,26 @@ const SearchResults = () => {
     return sorted;
   };
 
-  const visibleResults = sortResults(filterByDate(results));
+  const visibleResults = sortResults(filterByTopics(filterByDate(results)));
+
+  // Build topic facets with counts from all results
+  const topicFacets = (() => {
+    const counts = new Map<string, number>();
+    results.forEach(r => {
+      (r.topics || []).forEach(t => {
+        counts.set(t, (counts.get(t) || 0) + 1);
+      });
+    });
+    return Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 12);
+  })();
+
+  const toggleTopic = (topic: string) => {
+    setActiveTopics(prev =>
+      prev.includes(topic) ? prev.filter(t => t !== topic) : [...prev, topic]
+    );
+  };
 
   const performSearch = async (searchQuery: string) => {
     if (!searchQuery.trim()) return;

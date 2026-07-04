@@ -19,15 +19,27 @@ const Index = () => {
     };
 
     fetchArticleCount();
-    const interval = setInterval(fetchArticleCount, 10000);
-    const handleVisibility = () => {
-      if (!document.hidden) fetchArticleCount();
+
+    // Refresh the count whenever articles are inserted/updated/deleted
+    // (e.g. after a new edition is indexed), but debounce bursts.
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+    const queueArticleCountRefresh = () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(fetchArticleCount, 300);
     };
-    document.addEventListener('visibilitychange', handleVisibility);
+
+    const channel = supabase
+      .channel('articles-count')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'articles' },
+        queueArticleCountRefresh
+      )
+      .subscribe();
 
     return () => {
-      clearInterval(interval);
-      document.removeEventListener('visibilitychange', handleVisibility);
+      if (debounceTimer) clearTimeout(debounceTimer);
+      supabase.removeChannel(channel);
     };
   }, []);
 

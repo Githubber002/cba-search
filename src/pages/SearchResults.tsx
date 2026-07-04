@@ -6,6 +6,7 @@ import { SearchResult } from '@/components/SearchResult';
 import { AISummary } from '@/components/AISummary';
 import { RelatedArticles } from '@/components/RelatedArticles';
 import { supabase } from '@/integrations/supabase/client';
+import { cn } from '@/lib/utils';
 
 interface Article {
   id: string;
@@ -31,12 +32,26 @@ const SearchResults = () => {
   const [hasSearched, setHasSearched] = useState(false);
   const [dateFilter, setDateFilter] = useState<'all' | '7d' | '30d' | '90d' | '1y'>('all');
   const [sortOrder, setSortOrder] = useState<'relevance' | 'newest' | 'oldest'>('relevance');
+  const [activeTopics, setActiveTopics] = useState<string[]>([]);
+
+  // Reset topic filter when query changes
+  useEffect(() => {
+    setActiveTopics([]);
+  }, [query]);
 
   const filterByDate = (articles: Article[]) => {
     if (dateFilter === 'all') return articles;
     const days = { '7d': 7, '30d': 30, '90d': 90, '1y': 365 }[dateFilter];
     const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
     return articles.filter(a => a.published_date && new Date(a.published_date).getTime() >= cutoff);
+  };
+
+  const filterByTopics = (articles: Article[]) => {
+    if (activeTopics.length === 0) return articles;
+    const active = activeTopics.map(t => t.toLowerCase());
+    return articles.filter(a =>
+      (a.topics || []).some(t => active.includes(t.toLowerCase()))
+    );
   };
 
   const sortResults = (articles: Article[]) => {
@@ -50,7 +65,26 @@ const SearchResults = () => {
     return sorted;
   };
 
-  const visibleResults = sortResults(filterByDate(results));
+  const visibleResults = sortResults(filterByTopics(filterByDate(results)));
+
+  // Build topic facets with counts from all results
+  const topicFacets = (() => {
+    const counts = new Map<string, number>();
+    results.forEach(r => {
+      (r.topics || []).forEach(t => {
+        counts.set(t, (counts.get(t) || 0) + 1);
+      });
+    });
+    return Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 12);
+  })();
+
+  const toggleTopic = (topic: string) => {
+    setActiveTopics(prev =>
+      prev.includes(topic) ? prev.filter(t => t !== topic) : [...prev, topic]
+    );
+  };
 
   const performSearch = async (searchQuery: string) => {
     if (!searchQuery.trim()) return;
@@ -175,6 +209,49 @@ const SearchResults = () => {
                   </div>
                 </div>
               )}
+
+              {/* Topic filter chips */}
+              {topicFacets.length > 0 && (
+                <div className="mb-5 flex flex-wrap items-center gap-2">
+                  <span className="font-body text-xs uppercase tracking-wider text-muted-foreground mr-1">
+                    Filter by topic:
+                  </span>
+                  {topicFacets.map(([topic, count]) => {
+                    const active = activeTopics.includes(topic);
+                    return (
+                      <button
+                        key={topic}
+                        onClick={() => toggleTopic(topic)}
+                        className={cn(
+                          'px-3 py-1 rounded-full text-xs sm:text-sm border transition-colors',
+                          active
+                            ? 'bg-primary text-primary-foreground border-primary'
+                            : 'bg-card text-foreground border-border hover:border-primary/40'
+                        )}
+                      >
+                        {topic}
+                        <span
+                          className={cn(
+                            'ml-1.5 text-[10px]',
+                            active ? 'text-primary-foreground/80' : 'text-muted-foreground'
+                          )}
+                        >
+                          {count}
+                        </span>
+                      </button>
+                    );
+                  })}
+                  {activeTopics.length > 0 && (
+                    <button
+                      onClick={() => setActiveTopics([])}
+                      className="px-3 py-1 rounded-full text-xs sm:text-sm text-accent hover:underline"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+              )}
+
 
               {/* AI Summary */}
               {isLoading ? (

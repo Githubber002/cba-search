@@ -209,6 +209,49 @@ const SearchResults = () => {
                 </div>
               )}
 
+              {/* Topic filter chips */}
+              {topicFacets.length > 0 && (
+                <div className="mb-5 flex flex-wrap items-center gap-2">
+                  <span className="font-body text-xs uppercase tracking-wider text-muted-foreground mr-1">
+                    Filter by topic:
+                  </span>
+                  {topicFacets.map(([topic, count]) => {
+                    const active = activeTopics.includes(topic);
+                    return (
+                      <button
+                        key={topic}
+                        onClick={() => toggleTopic(topic)}
+                        className={cn(
+                          'px-3 py-1 rounded-full text-xs sm:text-sm border transition-colors',
+                          active
+                            ? 'bg-primary text-primary-foreground border-primary'
+                            : 'bg-card text-foreground border-border hover:border-primary/40'
+                        )}
+                      >
+                        {topic}
+                        <span
+                          className={cn(
+                            'ml-1.5 text-[10px]',
+                            active ? 'text-primary-foreground/80' : 'text-muted-foreground'
+                          )}
+                        >
+                          {count}
+                        </span>
+                      </button>
+                    );
+                  })}
+                  {activeTopics.length > 0 && (
+                    <button
+                      onClick={() => setActiveTopics([])}
+                      className="px-3 py-1 rounded-full text-xs sm:text-sm text-accent hover:underline"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+              )}
+
+
               {/* AI Summary */}
               {isLoading ? (
                 <div className="mb-6">

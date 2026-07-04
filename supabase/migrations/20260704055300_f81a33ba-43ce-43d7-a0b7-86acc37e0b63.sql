@@ -1,0 +1,1 @@
+alter publication supabase_realtime add table public.articles; alter table public.articles replica identity full;

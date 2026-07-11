@@ -87,7 +87,7 @@ async function generateSummary(query: string, results: any[], lovableApiKey: str
         messages: [
           {
             role: 'system',
-            content: `You are an expert summarizer for a cross-border e-commerce newsletter archive. Given a search query and matching articles, write a concise 2-3 sentence synthesis that directly answers the query using insights from the articles. Be specific and actionable. Do not mention article numbers or titles.`
+            content: `You are an expert summarizer for a cross-border e-commerce newsletter archive. Given a search query and up to 5 numbered articles, write a concise 2-3 sentence synthesis that directly answers the query. IMPORTANT: cite the specific article(s) that support each claim inline using bracketed numbers matching the article number, e.g. "TikTok Shop grew 40% in SEA [2]." or "Multiple editions covered this [1][3]." Only cite article numbers that appear in the input. Be specific and actionable. Do not mention titles.`
           },
           {
             role: 'user',

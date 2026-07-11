@@ -6,7 +6,7 @@ const corsHeaders = {
 };
 
 const BASE_URL = 'https://www.crossborderalex.com/p/global-digital-marketing-and-retail-ed';
-const TOTAL_EDITIONS = 146;
+const TOTAL_EDITIONS = 147;
 
 // Known URL exceptions (edition number -> full URL)
 const URL_EXCEPTIONS: Record<number, string> = {

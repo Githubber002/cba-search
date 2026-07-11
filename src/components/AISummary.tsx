@@ -30,27 +30,71 @@ export const AISummary = ({ summary, sources, isLoading }: AISummaryProps) => {
 
   if (!summary) return null;
 
+  // Parse inline [1], [2] citations and turn them into anchor links to sources
+  const renderSummaryWithCitations = () => {
+    if (!sources || sources.length === 0) return summary;
+
+    const parts: (string | JSX.Element)[] = [];
+    const regex = /\[(\d+)\]/g;
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+    let key = 0;
+
+    while ((match = regex.exec(summary)) !== null) {
+      const num = parseInt(match[1], 10);
+      const source = sources[num - 1];
+      if (match.index > lastIndex) {
+        parts.push(summary.slice(lastIndex, match.index));
+      }
+      if (source) {
+        parts.push(
+          <a
+            key={key++}
+            href={source.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={source.title}
+            className="inline-flex items-center justify-center min-w-[1.4rem] h-5 px-1.5 mx-0.5 text-xs font-medium bg-primary text-primary-foreground rounded-full hover:bg-primary/80 transition-colors align-baseline no-underline"
+          >
+            {num}
+          </a>
+        );
+      } else {
+        parts.push(match[0]);
+      }
+      lastIndex = regex.lastIndex;
+    }
+    if (lastIndex < summary.length) parts.push(summary.slice(lastIndex));
+    return parts;
+  };
+
   return (
     <div className="p-5 sm:p-6 bg-primary/5 border border-primary/20 rounded-xl">
       <div className="flex items-center gap-2 mb-3">
         <Sparkles className="w-4 h-4 text-primary" />
         <span className="text-sm font-medium text-primary uppercase tracking-wide">AI Summary</span>
       </div>
-      <p className="text-foreground leading-relaxed mb-4">{summary}</p>
+      <p className="text-foreground leading-relaxed mb-2">{renderSummaryWithCitations()}</p>
+      <p className="text-xs text-muted-foreground mb-4 italic">
+        Click a numbered citation or a source below to read the full article.
+      </p>
       {sources && sources.length > 0 && (
         <div className="border-t border-primary/10 pt-3">
           <p className="text-xs text-muted-foreground uppercase tracking-wide mb-2">Sources</p>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-col gap-2">
             {sources.map((source, i) => (
               <a
                 key={i}
                 href={source.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-card border border-border rounded-full text-xs sm:text-sm text-foreground hover:text-primary hover:border-primary/30 transition-all"
+                className="group inline-flex items-start gap-2 px-3 py-2 bg-card border border-border rounded-lg text-xs sm:text-sm text-foreground hover:text-primary hover:border-primary/40 hover:bg-primary/5 transition-all"
               >
-                <ExternalLink className="w-3 h-3 flex-shrink-0" />
-                <span className="line-clamp-1">{source.title}</span>
+                <span className="inline-flex items-center justify-center min-w-[1.4rem] h-5 px-1.5 text-xs font-medium bg-primary text-primary-foreground rounded-full flex-shrink-0 mt-0.5">
+                  {i + 1}
+                </span>
+                <span className="line-clamp-2 flex-1">{source.title}</span>
+                <ExternalLink className="w-3.5 h-3.5 flex-shrink-0 mt-1 text-muted-foreground group-hover:text-primary" />
               </a>
             ))}
           </div>

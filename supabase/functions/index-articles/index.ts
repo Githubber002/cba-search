@@ -19,6 +19,7 @@ const URL_EXCEPTIONS: Record<number, string> = {
   19: 'https://www.crossborderalex.com/p/global-digital-marketing-and-retail-5b7',
   73: 'https://www.crossborderalex.com/p/global-digital-marketing-and-retail-ed73',
   109: 'https://www.crossborderalex.com/p/global-digital-marketing-and-retail-ed109109',
+  152: 'https://www.crossborderalex.com/p/clobal-digital-marketing-and-retail-ed152',
 };
 
 // Editions that use ed-{n} pattern (with hyphen)

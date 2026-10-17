@@ -7,6 +7,8 @@ import { AISummary } from '@/components/AISummary';
 import { RelatedArticles } from '@/components/RelatedArticles';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { matchesQuery } from '../../supabase/functions/_shared/search-text';
 
 interface Article {
   id: string;
@@ -33,6 +35,8 @@ const SearchResults = () => {
   const [dateFilter, setDateFilter] = useState<'all' | '7d' | '30d' | '90d' | '1y'>('all');
   const [sortOrder, setSortOrder] = useState<'relevance' | 'newest' | 'oldest'>('relevance');
   const [activeTopics, setActiveTopics] = useState<string[]>([]);
+  const [searchError, setSearchError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   // Reset topic filter when query changes
   useEffect(() => {
@@ -70,13 +74,13 @@ const SearchResults = () => {
   // Build topic facets with counts from all results
   const topicFacets = (() => {
     const counts = new Map<string, number>();
-    results.forEach(r => {
-      (r.topics || []).forEach(t => {
+    filterByDate(results).forEach(r => {
+      [...new Set(r.topics || [])].filter(t => t.toLowerCase() !== 'discussion about this post').forEach(t => {
         counts.set(t, (counts.get(t) || 0) + 1);
       });
     });
     return Array.from(counts.entries())
-      .sort((a, b) => b[1] - a[1])
+      .sort((a, b) => Number(matchesQuery(b[0], query)) - Number(matchesQuery(a[0], query)) || b[1] - a[1])
       .slice(0, 12);
   })();
 
@@ -86,39 +90,51 @@ const SearchResults = () => {
     );
   };
 
-  const performSearch = async (searchQuery: string) => {
-    if (!searchQuery.trim()) return;
+  useEffect(() => {
+    let cancelled = false;
+    const performSearch = async () => {
+    if (!query.trim()) {
+      setResults([]);
+      setSummary(null);
+      setRelated([]);
+      setHasSearched(false);
+      setIsLoading(false);
+      return;
+    }
     
     setIsLoading(true);
     setHasSearched(true);
     setSummary(null);
     setRelated([]);
+    setResults([]);
+    setSearchError(false);
 
     try {
       const { data, error } = await supabase.functions.invoke('semantic-search', {
-        body: { query: searchQuery }
+        body: { query }
       });
 
       if (error) throw error;
+      if (!data?.success) throw new Error('Search unavailable');
+      if (cancelled) return;
 
       setResults(data.results || []);
       setSummary(data.summary || null);
       setRelated(data.related || []);
     } catch (error) {
+      if (cancelled) return;
       console.error('Search error:', error);
+      setSearchError(true);
       setResults([]);
       setSummary(null);
       setRelated([]);
     } finally {
-      setIsLoading(false);
+      if (!cancelled) setIsLoading(false);
     }
-  };
-
-  useEffect(() => {
-    if (query) {
-      performSearch(query);
-    }
-  }, [query]);
+    };
+    performSearch();
+    return () => { cancelled = true; };
+  }, [query, retryCount]);
 
   const handleSearch = (newQuery: string) => {
     navigate(`/search?q=${encodeURIComponent(newQuery)}`);
@@ -132,12 +148,12 @@ const SearchResults = () => {
       <div className="container max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
         {/* Header */}
         <header className="flex items-center gap-2 sm:gap-4 mb-6 sm:mb-8">
-          <button
+          <Button variant="outline" size="icon" aria-label="Back to home"
             onClick={() => navigate('/')}
             className="p-1.5 sm:p-2 border-2 border-border hover:border-accent hover:text-accent transition-colors flex-shrink-0"
           >
             <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-          </button>
+          </Button>
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <Globe className="w-4 h-4 sm:w-5 sm:h-5 text-accent flex-shrink-0" />
             <span className="font-body text-sm sm:text-lg uppercase tracking-wider truncate">Crossborder Alex Search</span>
@@ -162,19 +178,24 @@ const SearchResults = () => {
                 <span className="uppercase">Searching with AI...</span>
               </div>
             </div>
+          ) : searchError ? (
+            <div className="py-12 text-center" role="alert">
+              <h2 className="font-display text-lg text-foreground mb-3">Search is temporarily unavailable</h2>
+              <Button onClick={() => setRetryCount(value => value + 1)}>Try again</Button>
+            </div>
           ) : hasSearched && results.length === 0 ? (
             <div className="py-12 sm:py-20 text-center px-2">
               <Frown className="w-10 h-10 sm:w-12 sm:h-12 text-muted-foreground/50 mx-auto mb-4" />
               <h2 className="font-display text-xs sm:text-lg text-foreground mb-4">No results found</h2>
               <p className="font-body text-lg sm:text-xl text-muted-foreground mb-6">
-                Try different keywords or synonyms. The archive may not have been indexed yet.
+                No matching editions for this search.
               </p>
-              <button
+              <Button variant="link"
                 onClick={() => navigate('/')}
                 className="font-body text-lg sm:text-xl text-accent hover:underline uppercase"
               >
-                Go back and re-index articles
-              </button>
+                Back to all editions
+              </Button>
             </div>
           ) : (
             <>
@@ -219,11 +240,11 @@ const SearchResults = () => {
                   {topicFacets.map(([topic, count]) => {
                     const active = activeTopics.includes(topic);
                     return (
-                      <button
+                      <Button variant="outline" size="sm" aria-pressed={active}
                         key={topic}
                         onClick={() => toggleTopic(topic)}
                         className={cn(
-                          'px-3 py-1 rounded-full text-xs sm:text-sm border transition-colors',
+                          'h-auto whitespace-normal text-left max-w-full px-3 py-1 rounded-full text-xs sm:text-sm border transition-colors',
                           active
                             ? 'bg-primary text-primary-foreground border-primary'
                             : 'bg-card text-foreground border-border hover:border-primary/40'
@@ -238,16 +259,16 @@ const SearchResults = () => {
                         >
                           {count}
                         </span>
-                      </button>
+                      </Button>
                     );
                   })}
                   {activeTopics.length > 0 && (
-                    <button
+                    <Button variant="link" size="sm"
                       onClick={() => setActiveTopics([])}
                       className="px-3 py-1 rounded-full text-xs sm:text-sm text-accent hover:underline"
                     >
                       Clear
-                    </button>
+                    </Button>
                   )}
                 </div>
               )}
@@ -258,7 +279,7 @@ const SearchResults = () => {
                 <div className="mb-6">
                   <AISummary summary="" isLoading />
                 </div>
-              ) : summary ? (
+              ) : summary && dateFilter === 'all' && activeTopics.length === 0 ? (
                 <div className="mb-6">
                   <AISummary 
                     summary={summary} 
@@ -268,9 +289,10 @@ const SearchResults = () => {
               ) : null}
 
               {visibleResults.length === 0 && results.length > 0 && (
-                <p className="font-body text-sm text-muted-foreground py-6 text-center">
-                  No results match the selected date filter.
-                </p>
+                <div className="py-6 text-center">
+                  <p className="font-body text-sm text-muted-foreground">No editions match these filters.</p>
+                  <Button variant="link" onClick={() => { setDateFilter('all'); setActiveTopics([]); }}>Clear filters</Button>
+                </div>
               )}
 
               <div className="space-y-3 sm:space-y-4 animate-stagger">

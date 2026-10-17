@@ -132,9 +132,13 @@ async function parseArticle(url: string): Promise<Article | null> {
       )
       .filter(t => t.length > 3);
 
+    // Drop page chrome (comment headers, the recurring newsletter masthead) from stored topics
+    const PAGE_CHROME = ['discussion about this post', 'global digital marketing & retail by alex'];
+    const cleanTopics = topics.filter(t => !PAGE_CHROME.some(x => t.toLowerCase().includes(x)));
+
     // Build a descriptive title from meaningful topics
     const BOILERPLATE_TOPICS = ['discussion about this post', 'share', 'subscribe', 'global digital marketing & retail by alex'];
-    const meaningfulTopics = topics.filter(
+    const meaningfulTopics = cleanTopics.filter(
       t => !BOILERPLATE_TOPICS.some(bp => t.toLowerCase().includes(bp))
     );
     
@@ -156,7 +160,7 @@ async function parseArticle(url: string): Promise<Article | null> {
         subtitle,
         content: content.slice(0, 5000),
         published_date,
-        topics,
+        topics: cleanTopics,
         images
       };
     }

@@ -6,7 +6,7 @@ const corsHeaders = {
 };
 
 const BASE_URL = 'https://www.crossborderalex.com/p/global-digital-marketing-and-retail-ed';
-const TOTAL_EDITIONS = 156;
+const TOTAL_EDITIONS = 158;
 
 // Known URL exceptions (edition number -> full URL)
 const URL_EXCEPTIONS: Record<number, string> = {
@@ -117,23 +117,28 @@ async function parseArticle(url: string): Promise<Article | null> {
     }
 
     // Extract H4 headings as topics
-    const h4Matches = html.matchAll(/<h4[^>]*>([^<]+)<\/h4>/gi);
+    const h4Matches = html.matchAll(/<h4[^>]*>([\s\S]*?)<\/h4>/gi);
     const topics = [...h4Matches]
-      .map(m => m[1].trim())
+      .map(m => m[1].replace(/<[^>]+>/g, ' ').trim())
       .filter(t => t.length > 3 && t.length < 200)
       .map(t => t
         .replace(/&amp;/g, '&')
         .replace(/&nbsp;/g, ' ')
         .replace(/&#\d+;/g, '')
         .replace(/\\?u[0-9A-Fa-f]{4}/g, '')
+        .replace(/\s+/g, ' ')
         .replace(/^[^a-zA-Z0-9]+/, '')
         .trim()
       )
       .filter(t => t.length > 3);
 
+    // Drop page chrome (comment headers, the recurring newsletter masthead) from stored topics
+    const PAGE_CHROME = ['discussion about this post', 'global digital marketing & retail by alex'];
+    const cleanTopics = topics.filter(t => !PAGE_CHROME.some(x => t.toLowerCase().includes(x)));
+
     // Build a descriptive title from meaningful topics
-    const BOILERPLATE_TOPICS = ['discussion about this post', 'share', 'subscribe'];
-    const meaningfulTopics = topics.filter(
+    const BOILERPLATE_TOPICS = ['discussion about this post', 'share', 'subscribe', 'global digital marketing & retail by alex'];
+    const meaningfulTopics = cleanTopics.filter(
       t => !BOILERPLATE_TOPICS.some(bp => t.toLowerCase().includes(bp))
     );
     
@@ -155,7 +160,7 @@ async function parseArticle(url: string): Promise<Article | null> {
         subtitle,
         content: content.slice(0, 5000),
         published_date,
-        topics,
+        topics: cleanTopics,
         images
       };
     }

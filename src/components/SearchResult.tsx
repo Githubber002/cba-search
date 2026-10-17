@@ -39,7 +39,7 @@ export const SearchResult = ({
   const [expandedTopics, setExpandedTopics] = useState<Set<number>>(new Set());
 
   // Filter out generic "Discussion about this post" topic
-  const filteredTopics = (topics?.filter(t => t.toLowerCase() !== 'discussion about this post') || [])
+  const filteredTopics = [...new Set(topics?.filter(t => t.toLowerCase() !== 'discussion about this post') || [])]
     .sort((a, b) => Number(matchesQuery(b, searchQuery || '')) - Number(matchesQuery(a, searchQuery || '')));
   const [showAllTopics, setShowAllTopics] = useState(false);
   const visibleTopics = showAllTopics ? filteredTopics : filteredTopics.slice(0, 8);
@@ -98,7 +98,7 @@ export const SearchResult = ({
                         e.stopPropagation();
                         toggleTopic(index);
                       }}
-                      className={`flex h-auto whitespace-normal justify-start items-start gap-2 text-sm leading-snug text-left w-full rounded hover:bg-muted/40 px-1 -mx-1 transition-colors ${
+                      className={`flex h-auto whitespace-normal justify-start items-start gap-2 text-sm leading-snug text-left w-full rounded hover:bg-muted/40 hover:text-foreground px-1 -mx-1 transition-colors ${
                         isMatch ? 'text-primary font-medium' : 'text-muted-foreground'
                       }`}
                       aria-expanded={isOpen}

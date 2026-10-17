@@ -117,9 +117,9 @@ async function parseArticle(url: string): Promise<Article | null> {
     }
 
     // Extract H4 headings as topics
-    const h4Matches = html.matchAll(/<h4[^>]*>([^<]+)<\/h4>/gi);
+    const h4Matches = html.matchAll(/<h4[^>]*>([\s\S]*?)<\/h4>/gi);
     const topics = [...h4Matches]
-      .map(m => m[1].trim())
+      .map(m => m[1].replace(/<[^>]+>/g, ' ').trim())
       .filter(t => t.length > 3 && t.length < 200)
       .map(t => t
         .replace(/&amp;/g, '&')
@@ -132,7 +132,7 @@ async function parseArticle(url: string): Promise<Article | null> {
       .filter(t => t.length > 3);
 
     // Build a descriptive title from meaningful topics
-    const BOILERPLATE_TOPICS = ['discussion about this post', 'share', 'subscribe'];
+    const BOILERPLATE_TOPICS = ['discussion about this post', 'share', 'subscribe', 'global digital marketing & retail by alex'];
     const meaningfulTopics = topics.filter(
       t => !BOILERPLATE_TOPICS.some(bp => t.toLowerCase().includes(bp))
     );

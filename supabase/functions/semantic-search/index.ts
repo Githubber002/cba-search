@@ -74,7 +74,7 @@ async function generateSummary(query: string, results: any[], lovableApiKey: str
   
   try {
     const context = results.slice(0, 5).map((r, i) => 
-      `Article ${i+1}: "${r.title}"\n${buildExcerpt(r.content || "", query, 1800).text}`
+      `Article ${i+1}: "${r.title}"\nTopics (headings only, not evidence for detailed claims): ${(r.topics || []).join('; ')}\nSaved body passage (may be incomplete): ${buildExcerpt(r.content || "", query, 1800).text}`
     ).join('\n\n');
 
     const response = await fetch(LOVABLE_AI_URL, {

@@ -66,7 +66,11 @@ export const SearchResult = ({
         
         {/* Keyword-context excerpt from the edition body */}
         {searchQuery && snippet && (() => {
-          const { text } = buildExcerpt(snippet, searchQuery);
+          const excerpt = buildExcerpt(snippet, searchQuery);
+          const matchingTopics = filteredTopics.filter(topic => matchesQuery(topic, searchQuery));
+          const text = !excerpt.matched && matchingTopics.length
+            ? `Covered in this edition: ${matchingTopics.join(' · ')}`
+            : excerpt.text;
           if (!text) return null;
           return (
             <div className="mt-3">

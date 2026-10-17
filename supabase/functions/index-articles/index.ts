@@ -126,6 +126,7 @@ async function parseArticle(url: string): Promise<Article | null> {
         .replace(/&nbsp;/g, ' ')
         .replace(/&#\d+;/g, '')
         .replace(/\\?u[0-9A-Fa-f]{4}/g, '')
+        .replace(/\s+/g, ' ')
         .replace(/^[^a-zA-Z0-9]+/, '')
         .trim()
       )

@@ -1,4 +1,4 @@
-import { buildExcerpt, hasValidCitations } from '../_shared/search-text.ts';
+import { buildExcerpt, hasValidCitations, keywordQuery, queryTerms, termCoverage } from '../_shared/search-text.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
 
 const corsHeaders = {
@@ -165,10 +165,12 @@ Deno.serve(async (req) => {
     if (!supabaseUrl || !supabaseServiceKey) throw new Error('Search configuration unavailable');
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const expandedQuery = expandQuery(query);
-    console.log(`Searching for: ${query} (expanded: ${expandedQuery})`);
+    // Strip conversational filler ("I once wrote on ...") so full-text search doesn't require those words
+    const keywords = keywordQuery(query);
+    const expandedQuery = expandQuery(keywords);
+    console.log(`Searching for: ${query} (keywords: ${keywords}, expanded: ${expandedQuery})`);
 
-    // STEP 1: Use Postgres full-text search (fast, indexed)
+    // STEP 1: Use Postgres full-text search (fast, indexed) — every keyword must match
     const { data: ftsResults, error: ftsError } = await supabase
       .rpc('search_articles', { search_query: expandedQuery, max_results: 10 });
 
@@ -180,6 +182,23 @@ Deno.serve(async (req) => {
       ...r,
       relevance: Math.min(0.5 + r.rank * 2, 1) // Normalize rank to 0.5-1.0
     }));
+
+    // STEP 1b: Multi-word query with few strict hits → accept editions covering most of the keywords
+    const terms = queryTerms(keywords);
+    if (directMatches.length < 3 && terms.length >= 3 && keywords === terms.join(' ')) {
+      const { data: looseResults } = await supabase
+        .rpc('search_articles', { search_query: expandQuery(terms.join(' OR ')), max_results: 30 });
+      const minCoverage = Math.ceil(terms.length * 0.6);
+      const seen = new Set(directMatches.map((d: any) => d.id));
+      const partial = (looseResults || [])
+        .filter((r: any) => !seen.has(r.id))
+        .map((r: any) => ({ ...r, coverage: termCoverage(`${r.title} ${(r.topics || []).join(' ')} ${r.content}`, keywords) }))
+        .filter((r: any) => r.coverage >= minCoverage)
+        .sort((a: any, b: any) => b.coverage - a.coverage || b.rank - a.rank)
+        .slice(0, 10 - directMatches.length)
+        .map(({ coverage, ...r }: any) => ({ ...r, relevance: Math.min(0.4 + (coverage / terms.length) * 0.4, 0.8) }));
+      directMatches.push(...partial);
+    }
 
     console.log(`FTS found ${directMatches.length} results for "${query}"`);
 

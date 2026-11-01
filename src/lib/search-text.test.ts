@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildExcerpt, hasValidCitations, matchesQuery, queryTerms, topicExcerpt } from '../../supabase/functions/_shared/search-text';
+import { buildExcerpt, hasValidCitations, keywordQuery, matchesQuery, queryTerms, termCoverage, topicExcerpt } from '../../supabase/functions/_shared/search-text';
 
 describe('query-focused search passages', () => {
   it('ignores question filler while retaining short domain acronyms', () => {
@@ -24,5 +24,16 @@ describe('query-focused search passages', () => {
     expect(hasValidCitations('Vietnam stores grow [3].', 2)).toBe(false);
     expect(hasValidCitations('Vietnam stores grow.', 2)).toBe(false);
     expect(hasValidCitations('Vietnam stores grow [0].', 2)).toBe(false);
+  });
+  it('drops conversational filler from questions about the archive', () => {
+    expect(keywordQuery('I wrote some time on product data completeness for google shopping')).toBe('product data completeness google shopping');
+    expect(keywordQuery('posts about india')).toBe('india');
+  });
+  it('leaves quoted phrases and OR queries untouched', () => {
+    expect(keywordQuery('"tiktok shop"')).toBe('"tiktok shop"');
+    expect(keywordQuery('tts OR tiktok shop')).toBe('tts OR tiktok shop');
+  });
+  it('counts how many distinct keywords an edition covers', () => {
+    expect(termCoverage('Google Shopping feeds need product data', 'product data completeness google shopping')).toBe(4);
   });
 });

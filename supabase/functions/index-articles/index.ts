@@ -78,8 +78,10 @@ async function parseArticle(url: string): Promise<Article | null> {
     const subtitleMatch = html.match(/<h3[^>]*class="[^"]*subtitle[^"]*"[^>]*>([^<]+)<\/h3>/i);
     const subtitle = subtitleMatch ? subtitleMatch[1].trim() : null;
 
-    // Extract date
-    const dateMatch = html.match(/datetime="(\d{4}-\d{2}-\d{2})/);
+    // Extract date: Substack exposes it in structured data; the datetime attribute is a legacy fallback
+    const dateMatch = html.match(/"datePublished"\s*:\s*"(\d{4}-\d{2}-\d{2})/) ||
+                      html.match(/"post_date"\s*:\s*"(\d{4}-\d{2}-\d{2})/) ||
+                      html.match(/datetime="(\d{4}-\d{2}-\d{2})/);
     const published_date = dateMatch ? dateMatch[1] : null;
 
     // Extract body content

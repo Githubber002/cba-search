@@ -1,8 +1,28 @@
-const STOP_WORDS = new Set('a an and are as at be by can could did do does for from had has have how i in into is it me my of on or our should that the their there these they this to was we what when where which who why will with would you your about tell please'.split(' '));
+const STOP_WORDS = new Set((
+  'a an and are as at be by can could did do does for from had has have how i in into is it me my of on or our should that the their there these they this to was we what when where which who why will with would you your about tell please ' +
+  // Conversational filler people type when asking about the archive ("I once wrote some time on ...")
+  'wrote write written writing once some sometime time ago ever any anything something post posts article articles edition editions newsletter newsletters find show look looking know give remember mentioned talked said ' +
+  'also just like more most so but not its if been being am were than then there here over up out'
+).split(' '));
 
 export function queryTerms(query: string): string[] {
   const words = query.toLowerCase().match(/[\p{L}\p{N}]+(?:[-’'][\p{L}\p{N}]+)*/gu) || [];
   return [...new Set(words.filter(word => word.length >= 2 && !STOP_WORDS.has(word)))];
+}
+
+/** Keyword form of a natural-language query for full-text search; quoted phrases and OR queries pass through. */
+export function keywordQuery(query: string): string {
+  const trimmed = query.trim();
+  if (/^".*"$/.test(trimmed) || /\bOR\b/.test(trimmed)) return trimmed;
+  const terms = queryTerms(trimmed);
+  return terms.length ? terms.join(' ') : trimmed;
+}
+
+/** Number of distinct query terms that appear as whole words in the text. */
+export function termCoverage(text: string, query: string): number {
+  const pattern = queryPattern(query);
+  if (!pattern) return 0;
+  return new Set([...(text || '').matchAll(pattern)].map(match => match[0].toLowerCase())).size;
 }
 
 export function escapePattern(text: string): string {
